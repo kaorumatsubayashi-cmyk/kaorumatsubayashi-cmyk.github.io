@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>松林 薫のブラウザ道具箱</title>
+<meta name="description" content="授業と研究のために作った、ブラウザで動く道具とゲームの置き場。">
+<meta name="theme-color" content="#F7F3E8">
+<meta property="og:title" content="松林 薫のブラウザ道具箱">
+<meta property="og:description" content="授業と研究のために作った、ブラウザで動く道具とゲームの置き場。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --washi:#F7F3E8; --card:#FDFBF4; --sumi:#2B2A2C; --soft:#58554E; --keshi:#8B877B;
+  --rule:#E1D9C6; --beni:#9A2530; --beni-lt:#C0392F; --matsu:#3F6B4E; --kin:#DEBA81;
+  --fuji:#8E7BB0; --ai:#4E6186;
+  --mincho:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--washi);color:var(--sumi);
+  font-family:var(--gothic);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 10% 4%, rgba(222,186,129,.18), transparent 38%),
+    radial-gradient(circle at 92% 96%, rgba(142,123,176,.12), transparent 42%);
+}
+.wrap{max-width:940px;margin:0 auto;padding:36px 20px 72px}
+
+header{text-align:center}
+header h1{
+  font-family:var(--mincho);font-weight:800;margin:0;
+  font-size:clamp(27px,6.4vw,42px);letter-spacing:.14em;text-indent:.14em;line-height:1.25;
+}
+header .sub{
+  font-family:var(--mincho);color:var(--beni);margin:10px 0 0;
+  letter-spacing:.14em;text-indent:.14em;font-size:clamp(12px,3.2vw,14.5px);
+}
+.kasane{
+  height:7px;border-radius:1px;margin:20px 0 0;
+  background:linear-gradient(to right,
+    var(--matsu) 0 22%, #FBF7EE 22% 30%, var(--kin) 30% 46%,
+    var(--fuji) 46% 54%, #FBF7EE 54% 62%, var(--beni-lt) 62% 100%);
+}
+header .lede{font-size:14px;color:var(--soft);max-width:34em;margin:18px auto 0;text-align:left}
+
+section{margin:40px 0 0}
+section h2{
+  font-family:var(--mincho);font-size:19px;font-weight:600;margin:0;
+  letter-spacing:.08em;display:inline-block;border-bottom:2px solid var(--kin);padding-bottom:4px;
+}
+section .note{font-size:12.5px;color:var(--keshi);margin:9px 0 0}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:13px;margin:16px 0 0}
+a.item{
+  display:block;position:relative;overflow:hidden;text-decoration:none;color:inherit;
+  background:var(--card);border:1px solid var(--rule);border-radius:8px;
+  padding:15px 16px 16px 20px;
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+}
+a.item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--kin)}
+a.item.beni::before{background:var(--beni-lt)}
+a.item.matsu::before{background:var(--matsu)}
+a.item.ai::before{background:var(--ai)}
+a.item.fuji::before{background:var(--fuji)}
+a.item:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(43,42,44,.10);border-color:var(--keshi)}
+a.item:focus-visible{outline:2px solid var(--fuji);outline-offset:2px}
+a.item .t{font-family:var(--mincho);font-size:18.5px;font-weight:600;letter-spacing:.04em;line-height:1.4}
+a.item .d{font-size:13px;color:var(--soft);margin:5px 0 0;line-height:1.7}
+a.item .u{font-size:11px;color:var(--keshi);margin:8px 0 0;letter-spacing:.02em;font-family:var(--mincho)}
+
+footer{margin:52px 0 0;padding:20px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--keshi);line-height:1.9}
+footer a{color:var(--fuji)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>ブラウザ道具箱</h1>
+  <p class="sub">松林 薫　大和大学社会学部</p>
+  <div class="kasane"></div>
+  <p class="lede">授業と研究のために作った、ブラウザで動く道具とゲームです。どれもリンクを開くだけで始められます。インストールも登録も要りません。</p>
+</header>
+
+<section>
+  <h2>授業でつかう</h2>
+  <p class="note">教室でひとそろい使うもの。</p>
+  <div class="grid">
+    <a class="item beni" href="ramen-game/">
+      <div class="t">ラーメン店経営ゲーム</div>
+      <div class="d">一杯の値づけと仕入れから、店の一年を考えます。作戦シミュレーターで試算し、壁打ちモードで仕組みに慣れてから本番へ。</div>
+      <div class="u">経済学概論・社会学概論</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>言の葉</h2>
+  <p class="note">和歌、漢詩、英単語、暗号。言葉を素材にしたもの。</p>
+  <div class="grid">
+    <a class="item beni" href="shikibu-chan/">
+      <div class="t">式部ちゃん</div>
+      <div class="d">言いにくいことも、和歌にすれば雅に伝わります。状況を書き込むと、生成AIに渡すプロンプトができます。届いた歌を読み解いたり、返歌を作ったりも。</div>
+      <div class="u">LINE時代に甦る平安コミュニケーション</div>
+    </a>
+    <a class="item ai" href="libai-kun/">
+      <div class="t">李白くん</div>
+      <div class="d">絶句や律詩を賦し、届いた詩を読み解き、次韻して和す。押韻も平仄も整えたうえで、書き下し文と現代語訳が付きます。</div>
+      <div class="u">漢字文化圏のグローバルコミュニケーションツール</div>
+    </a>
+    <a class="item matsu" href="kyokusui/">
+      <div class="t">曲水の宴</div>
+      <div class="d">遣水に流した盃が自分の前に着いたら、時間内に一首詠む。詠めなければ罰杯。猫や風神の邪魔も入ります。二人から十二人で。</div>
+      <div class="u">言の葉、流るる</div>
+    </a>
+    <a class="item fuji" href="word-mahjong/">
+      <div class="t">英単語麻雀</div>
+      <div class="d">英単語を手牌にして和了る。麻雀の役づくりの感覚で語彙に触れます。</div>
+    </a>
+    <a class="item" href="aniguma/">
+      <div class="t">兄ぐま暗号</div>
+      <div class="d">エニグマ風のテキスト暗号化。ローターを組んで文を隠し、同じ設定で元に戻します。</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>訓練</h2>
+  <p class="note">計算、集中、自己理解。繰り返して身につけるもの。</p>
+  <div class="grid">
+    <a class="item matsu" href="hyakumasu/">
+      <div class="t">百ます計算</div>
+      <div class="d">タイムアタック。記録を積み上げて、速さの伸びを確かめます。</div>
+    </a>
+    <a class="item matsu" href="cap-t/">
+      <div class="t">CAP-T</div>
+      <div class="d">連続加算テスト。内田クレペリン検査の考え方をもとにした、作業量の変化をみる課題。</div>
+    </a>
+    <a class="item fuji" href="spi-check/">
+      <div class="t">SPI性格検査トレーニング</div>
+      <div class="d">就職活動で出会う性格検査の練習。答え方の癖を先に知っておくために。</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>お金</h2>
+  <p class="note">投資と資産運用を、手を動かして考えるもの。</p>
+  <div class="grid">
+    <a class="item ai" href="montecarlo-sim/">
+      <div class="t">モンテカルロ投資シミュレーション</div>
+      <div class="d">乱数を何千回も回して、運用結果がどれだけ散らばるかを見ます。平均だけを見ていては分からないことのために。</div>
+    </a>
+    <a class="item ai" href="soubacho/">
+      <div class="t">相場帳</div>
+      <div class="d">リスク許容度の判定。値動きに自分がどう反応するかを、選択を通して測ります。</div>
+    </a>
+    <a class="item ai" href="asset-sim/">
+      <div class="t">資産運用人生ゲーム</div>
+      <div class="d">人生の節目ごとに選びながら、資産がどう育つかをたどります。</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>遊び</h2>
+  <div class="grid">
+    <a class="item beni" href="esci-tennis/">
+      <div class="t">翔け！エスキーテニス</div>
+      <div class="d">エスキーテニスのブラウザゲーム。</div>
+    </a>
+    <a class="item beni" href="roach-hunter/">
+      <div class="t">ゴキブリ退治</div>
+      <div class="d">出てきたところを叩く、それだけのゲーム。</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>学生の作品</h2>
+  <p class="note">ポップコーンの屋台の宣伝のために、学生が作ったもの。</p>
+  <div class="grid">
+    <a class="item" href="popcorn-games/">
+      <div class="t">ポップコーンゲームズ</div>
+      <div class="d">屋台の宣伝ゲーム。</div>
+    </a>
+    <a class="item" href="popcorn-catch/">
+      <div class="t">ポップコーンキャッチ</div>
+      <div class="d">はじけた粒を受け止める。</div>
+    </a>
+    <a class="item" href="perfect-pop/">
+      <div class="t">パーフェクトポップ</div>
+      <div class="d">はじける頃合いを見きわめる。</div>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>いずれもブラウザだけで動きます。端末に何かを保存することはありません。生成AIを使うものは、できあがった文面をご自身のAIに貼り付けて使う形です。</p>
+  <p>大和大学社会学部　松林 薫</p>
+</footer>
+
+</div>
+</body>
+</html>
