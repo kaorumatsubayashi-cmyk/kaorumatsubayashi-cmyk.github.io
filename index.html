@@ -249,51 +249,65 @@ footer a{color:var(--fuji)}
 </footer>
 
 </div>
-<!-- printing-revolution-toolbox-v14n -->
-<style>
-.pr-v14n-card{display:block;box-sizing:border-box;text-decoration:none;padding:13px 15px;margin:10px 0;border:1px solid #8794a5;border-radius:12px;line-height:1.55;color:inherit;background:rgba(125,146,162,.08)}
-.pr-v14n-card strong{display:block;font-size:1em}.pr-v14n-card small{display:block;font-size:.84em;opacity:.8}
-.pr-v14n-card:hover,.pr-v14n-card:focus-visible{outline:2px solid #7596c8;outline-offset:2px}
-</style>
+<!-- printing-revolution-toolbox-v14n-matched -->
 <script>
 (function(){
- const id='printing-revolution-v14n-toolbox-card';
- const words=/^授業で(使|つか)う$/;
- let busy=false;
- function attach(){
-  if(busy || document.getElementById(id))return !!document.getElementById(id);
-  busy=true;
-  try{
-   const elems=Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6,summary,button,[role="tab"],.category-title,.section-title,.category-name,.tab-title,span,strong,div'));
-   const labs=elems.filter(e=>e.children.length<=4 && words.test((e.textContent||'').replace(/\s/g,'').trim()));
-   for(const label of labs){
-    let host=label.closest('section,article,[role="tabpanel"],.category,.category-section,.category-group,.section,.tab-pane,.category-content,.tool-section,.tool-category');
-    if(!host){host=label.parentElement;}
-    if(!host)continue;
-    // tab/buttonだけならナビゲーションではなく、対応する内容領域を選ぶ。
-    if(label.matches('button,[role="tab"]')){
-      const sel=label.getAttribute('aria-controls');
-      const panel=sel && document.getElementById(sel);
-      if(panel)host=panel;
-      else if(host===label.parentElement && host.querySelectorAll('button,[role="tab"]').length>1) continue;
+  'use strict';
+  const ID='printing-revolution-v14n-matched-card';
+  const REF='印刷革命は何を生んだか';
+  const TITLE='一枚の紙が百の村を動かす';
+  const DESCRIPTION='印刷革命RPG。1525年のヨーロッパで、ビラや小冊子を刷り、関所を越えて村々に届ける。活版印刷が社会を変えた力を体験します。';
+  const URL='./printing-revolution/';
+  const markerText='印刷革命RPG・歴史教材';
+  function run(){
+    if(document.getElementById(ID))return true;
+    const textNodes=[...document.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,span,div,p,a')]
+      .filter(e=>e.children.length===0 && (e.textContent||'').trim()===REF);
+    for(const t of textNodes){
+      let card=t.closest('a[href], [class*="card"], article, li');
+      if(!card)continue;
+      // 小さなタイトル文字の子孫でなく、既存のカード全体を複製する。
+      const host=card.parentElement;
+      if(!host)continue;
+      if(host.querySelector('#'+ID))return true;
+      const copy=card.cloneNode(true);
+      copy.id=ID;
+      copy.removeAttribute('onclick');
+      copy.removeAttribute('onmousedown');
+      copy.removeAttribute('onmouseup');
+      copy.removeAttribute('target');
+      if(copy.tagName.toLowerCase()==='a')copy.href=URL;
+      else{
+        const a=copy.querySelector('a[href]');
+        if(a)a.href=URL;
+        else{
+          // divカードでもリンクとして操作できるようにする。
+          copy.setAttribute('role','link');copy.tabIndex=0;
+          copy.addEventListener('click',()=>{location.href=URL});
+          copy.addEventListener('keydown',e=>{if(e.key==='Enter')location.href=URL});
+        }
+      }
+      const name=[...copy.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,span,div,p')]
+        .find(e=>e.children.length===0 && (e.textContent||'').trim()===REF);
+      if(name)name.textContent=TITLE;
+      else copy.textContent=TITLE;
+      // 既存カードの見た目を維持し、説明・補足だけを更新。
+      let parts=[...copy.querySelectorAll('p,small,[class*="desc"],[class*="tag"],[class*="meta"]')]
+         .filter(e=>e.children.length===0 && (e.textContent||'').trim()!==TITLE);
+      if(parts.length){parts[0].textContent=DESCRIPTION;for(let i=1;i<parts.length;i++)parts[i].textContent=markerText;}
+      host.insertBefore(copy,card.nextSibling);
+      return true;
     }
-    if(host.matches('header,nav') || host.closest('header,nav') && !host.matches('section,article,[role="tabpanel"]'))continue;
-    const a=document.createElement('a');
-    a.id=id;a.className='pr-v14n-card';a.href='./printing-revolution/';
-    a.innerHTML='<strong>一枚の紙が百の村を動かす</strong><small>印刷革命RPG｜1525年のヨーロッパを体験・30〜40分</small>';
-    host.appendChild(a);
-    return true;
-   }
-   return false;
-  } finally {busy=false;}
- }
- function start(){if(attach())return;
-  const mo=new MutationObserver(()=>{if(attach())mo.disconnect()});
-  mo.observe(document.body||document.documentElement,{childList:true,subtree:true});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+    return false;
+  }
+  function begin(){
+    if(run())return;
+    const mo=new MutationObserver(()=>{if(run())mo.disconnect()});
+    mo.observe(document.body||document.documentElement,{subtree:true,childList:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 })();
 </script>
-<!-- /printing-revolution-toolbox-v14n -->
+<!-- /printing-revolution-toolbox-v14n-matched -->
 </body>
 </html>
