@@ -249,5 +249,51 @@ footer a{color:var(--fuji)}
 </footer>
 
 </div>
+<!-- printing-revolution-toolbox-v14n -->
+<style>
+.pr-v14n-card{display:block;box-sizing:border-box;text-decoration:none;padding:13px 15px;margin:10px 0;border:1px solid #8794a5;border-radius:12px;line-height:1.55;color:inherit;background:rgba(125,146,162,.08)}
+.pr-v14n-card strong{display:block;font-size:1em}.pr-v14n-card small{display:block;font-size:.84em;opacity:.8}
+.pr-v14n-card:hover,.pr-v14n-card:focus-visible{outline:2px solid #7596c8;outline-offset:2px}
+</style>
+<script>
+(function(){
+ const id='printing-revolution-v14n-toolbox-card';
+ const words=/^授業で(使|つか)う$/;
+ let busy=false;
+ function attach(){
+  if(busy || document.getElementById(id))return !!document.getElementById(id);
+  busy=true;
+  try{
+   const elems=Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6,summary,button,[role="tab"],.category-title,.section-title,.category-name,.tab-title,span,strong,div'));
+   const labs=elems.filter(e=>e.children.length<=4 && words.test((e.textContent||'').replace(/\s/g,'').trim()));
+   for(const label of labs){
+    let host=label.closest('section,article,[role="tabpanel"],.category,.category-section,.category-group,.section,.tab-pane,.category-content,.tool-section,.tool-category');
+    if(!host){host=label.parentElement;}
+    if(!host)continue;
+    // tab/buttonだけならナビゲーションではなく、対応する内容領域を選ぶ。
+    if(label.matches('button,[role="tab"]')){
+      const sel=label.getAttribute('aria-controls');
+      const panel=sel && document.getElementById(sel);
+      if(panel)host=panel;
+      else if(host===label.parentElement && host.querySelectorAll('button,[role="tab"]').length>1) continue;
+    }
+    if(host.matches('header,nav') || host.closest('header,nav') && !host.matches('section,article,[role="tabpanel"]'))continue;
+    const a=document.createElement('a');
+    a.id=id;a.className='pr-v14n-card';a.href='./printing-revolution/';
+    a.innerHTML='<strong>一枚の紙が百の村を動かす</strong><small>印刷革命RPG｜1525年のヨーロッパを体験・30〜40分</small>';
+    host.appendChild(a);
+    return true;
+   }
+   return false;
+  } finally {busy=false;}
+ }
+ function start(){if(attach())return;
+  const mo=new MutationObserver(()=>{if(attach())mo.disconnect()});
+  mo.observe(document.body||document.documentElement,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+</script>
+<!-- /printing-revolution-toolbox-v14n -->
 </body>
 </html>
