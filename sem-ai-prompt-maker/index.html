@@ -1,0 +1,72 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SEM｜AIセッション・プロンプトメーカー</title><style>
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;color:#233c53;background:#f3f7fa;margin:0;line-height:1.65;font-size:15px}header{background:#123b60;color:white;padding:25px max(18px,calc((100vw - 1080px)/2))}header h1{font-size:22px;margin:0 0 4px}header p{margin:0;opacity:.8}main{max-width:1080px;padding:18px;margin:auto}.card{background:#fff;border:1px solid #dce6ed;border-radius:14px;padding:22px;margin-bottom:15px;box-shadow:0 4px 14px #2343a00a}h2{font-size:18px;margin:0 0 13px}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0}button,.filebtn{padding:10px 16px;border:1px solid #087f78;border-radius:8px;font:inherit;background:#087f78;color:white;cursor:pointer;font-weight:600}.alt{background:#fff;color:#184157;border-color:#b9d1dc}.filebtn input{display:none}select,input{font:inherit;border:1px solid #b9cad4;border-radius:8px;padding:9px;max-width:100%}select{max-width:90%}.note{background:#eef7f4;padding:13px;border-left:4px solid #087f78;border-radius:4px}.warning{color:#9f4d25}.muted{font-size:13px;color:#62758a}.chip{display:inline-block;background:#e7f2f7;padding:4px 10px;border-radius:18px;margin-right:7px;font-size:13px}.error{color:#ae2a20;font-weight:600}label{font-weight:650}button:disabled{opacity:.45;cursor:default}textarea{display:block;width:100%;min-height:190px;border:1px solid #b9cad4;border-radius:8px;padding:11px;font:12px/1.55 ui-monospace,Consolas,monospace;resize:vertical} [hidden]{display:none!important}@media(max-width:640px){header h1{font-size:19px}.card{padding:15px}}
+</style></head><body><header><h1>SEM｜AIセッション・プロンプトメーカー</h1><p>分析結果をもとに、ChatGPTでモデルの読み方を学びます。</p></header>
+<main>
+<section class="card"><h2>① 分析ラボの結果を読み込む</h2><div class="row"><label class="filebtn">分析結果ファイルを選ぶ<input id="jsonFile" type="file" accept=".json,application/json"></label><span id="state" class="muted">分析ラボで保存した「AIセッション用JSON」を選んでください。</span></div><div id="summary" class="note">まず分析ラボで保存した結果を読み込んでください。</div></section>
+<section class="card"><h2>② 学習したい内容を選ぶ</h2><div class="row"><label for="phase">学習テーマ</label><select id="phase"><option value="hypothesis">仮説とパス図｜矢印は何を意味するか</option><option value="coefficient">係数の解釈｜どちらの能力が強く関係するか</option><option value="fit" selected>モデル比較｜適合度をどう読むか</option><option value="decision">人事・マーケティングへの応用｜モデルの限界</option><option value="full">総合演習｜仮説→結果→考察</option></select></div><div class="row"><label for="audience">難しさ</label><select id="audience"><option value="beginner" selected>初学者（用語をその都度説明）</option><option value="standard">標準（統計学入門履修済み）</option></select><label for="focus">重点的に見るモデル</label><select id="focus"><option value="all">全モデルを同じ比重で見る</option></select></div><div class="row"><label for="studentId">グループ名（任意）</label><input id="studentId" type="text" placeholder="例：グループ3" maxlength="40"></div><div class="row"><button id="copy" disabled>AIセッション用の文章をコピー</button><span id="copyStatus" class="muted" role="status" aria-live="polite">分析結果を読み込むと、コピーできるようになります。</span></div><p class="muted">コピーしたら、ChatGPTの入力欄に貼り付けて送信してください。名前などの個人情報は入力不要です。</p>
+<div id="copyRescue" class="note" hidden><p><b>コピーできない場合</b></p><p>下の文章を選択してコピーするか、「文章をTXTで保存」を押し、ファイルを開いてコピーしてください。</p><textarea id="manualPrompt" readonly aria-label="コピーできなかったAIセッション用の文章"></textarea><div class="row"><button id="selectPrompt" class="alt" type="button">文章をすべて選択</button><button id="saveText" class="alt" type="button">文章をTXTで保存</button></div></div>
+</section>
+</main>
+<script>
+'use strict';const E=id=>document.getElementById(id);let report=null;let promptRevision=0;
+function invalidatePrompt(){promptRevision++;E('copyRescue').hidden=true;E('manualPrompt').value='';E('copyStatus').textContent=report?'条件を変更しました。新しい文章をコピーしてください。':'分析結果を読み込むと、コピーできるようになります。';}
+// 学習条件が変わったら、前のテーマの手動コピー欄を必ず閉じる。
+for(const id of ['phase','audience','focus','studentId'])E(id).addEventListener(id==='studentId'?'input':'change',invalidatePrompt);
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+E('jsonFile').addEventListener('change',async ev=>{const file=ev.target.files?.[0];if(!file)return;invalidatePrompt();try{
+ const obj=JSON.parse(await file.text());if(obj.schema!=='sem-hr-learning-v1'||!Array.isArray(obj.results)||!obj.results.length)throw Error('分析ラボから保存した結果JSONを選んでください');
+ const names=['chi2','df','cfi','rmsea','aic'];for(const r of obj.results)if(names.some(k=>!Number.isFinite(r[k])))throw Error('分析結果の数値が不足しています');
+ report=obj;E('copyRescue').hidden=true;E('manualPrompt').value='';E('state').textContent=`読み込み成功：${obj.results.length}モデル／${obj.n}件。`;
+ E('summary').innerHTML=`<span class="chip">回答 ${obj.n}件</span><span class="chip">比較モデル ${obj.results.length}種類</span><span class="chip">ML推定</span><p>${obj.results.map(x=>safe(x.model.name)).join(' ／ ')}</p>`;
+ E('focus').innerHTML='<option value="all">全モデルを同じ比重で見る</option>'+obj.results.map((x,i)=>`<option value="${i}">${safe(x.model.name)}</option>`).join('');E('copy').disabled=false;E('copyStatus').textContent='テーマを選んでコピーしてください。';E('state').className='muted';
+ }catch(e){report=null;E('state').textContent='読み込み失敗：'+e.message;E('state').className='error';E('summary').textContent='有効な分析結果を選び直してください。';E('focus').innerHTML='<option value="all">全モデルを同じ比重で見る</option>';E('copyRescue').hidden=true;E('manualPrompt').value='';E('copy').disabled=true;E('copyStatus').textContent='分析結果を読み込んでください。';}
+});
+const questions={hypothesis:'まず、3つの潜在変数と11個の観測項目を区別させ、なぜ「コミュニケーション力と主体性は相関しうる」のか、モデルから学生自身に説明させる。',coefficient:'コミュニケーション力と主体性から採用意向への標準化パス係数を学生に比較させ、相関と他の能力を考慮したパス係数の違いを問いかける。',fit:'AICの小ささとCFI・RMSEA・GFI・AGFI・SRMRの解釈を学生に問い、パスを1本削除したときの自由度・χ²・適合度の変化を比べさせる。モデルDではCFIやRMSEAだけでなく、SRMRが大きい理由も考えさせる。',decision:'採用担当者が同じ応募者の能力と採用意向の両方を評価したことによる共通方法バイアスや、実際の採用決定と回答上の採用意向の違いを考えさせる。',full:'仮説の確認→係数→適合度比較→採用施策への応用と限界を順に扱う。各段階で学生の考えを確認してから次へ進む。'};
+function buildPrompt(){const phase=E('phase').value,level=E('audience').value,id=E('studentId').value.trim();const sel=E('focus').value;const selected=report.results;const focusName=sel==='all'?'全モデルを同じ比重で扱う':report.results[Number(sel)].model.name;
+ const payload=selected.map(r=>({
+  モデル名:r.model.name,
+  構造パス:{コミュニケーションから採用意向:r.model.pc,主体性から採用意向:r.model.pi,二能力の共分散:r.model.cov},
+  標本数:r.n,χ2:+r.chi2.toFixed(4),df:r.df,GFI:+r.gfi.toFixed(4),AGFI:+r.agfi.toFixed(4),
+  CFI:+r.cfi.toFixed(4),TLI:+r.tli.toFixed(4),RMSEA:+r.rmsea.toFixed(4),SRMR:+r.srmr.toFixed(4),AIC:+r.aic.toFixed(2),
+  標準化係数:{
+    コミュニケーションから採用意向:r.model.pc?+r.coeff.communication.toFixed(4):'パスなし',
+    主体性から採用意向:r.model.pi?+r.coeff.initiative.toFixed(4):'パスなし',
+    二能力間相関:r.model.cov?+r.coeff.correlation.toFixed(4):'相関パスなし'
+  },
+  推定パス:r.paths.map(p=>({関係:p.label,非標準化係数:+p.estimate.toFixed(4),標準化係数:+p.standardized.toFixed(4),標準誤差:p.se==null?'算出不可':+p.se.toFixed(5),p値:p.p==null?'算出不可':p.p<.001?'p<0.001':+p.p.toFixed(5)})),
+  因子負荷量:r.loadings.map((l,i)=>({質問:['C1','C2','C3','C4','I1','I2','I3','I4','H1','H2','H3'][i],標準化係数:+l.standardized.toFixed(4)})),
+  収束:r.converged
+ }));
+ const compareAllowed=selected.length>=2;
+ const currentQuestion=!compareAllowed&&(phase==='fit'||phase==='full')?'分析結果が1モデルしかないためモデル間比較の指示は出さず、係数・適合度・限界をまず解釈し、比較には分析ラボで別モデルの結果を追加する必要があると説明する。':questions[phase];
+ const finalTask=compareAllowed?'モデル間の違い、根拠、限界':'モデルの特徴、根拠、限界';
+ return `# 役割\nあなたは大学のマーケティング授業で共分散構造分析（SEM）を指導する対話型チューターです。日本語で学生の思考を支援してください。${id?'グループ識別名：'+id+'。':''}\n\n# 実施ルール\n- これは実験的なAIセッションです。あなた自身で再推定したふりをしないでください。数値の根拠は下記「分析ラボの計算結果」に限定します。未記載の係数・p値・効果量を創作しないでください。\n- 初回は授業のねらいを2文以内で説明し、**質問を1つだけ**出して学生の回答を待ってください。1回に長い解説や模範解答を与えないでください。\n- 学生の回答を受け、正しい着眼点を短く評価し、必要なら誤りを補い、次の質問を1つだけ出します。学生の考えを引き出す前に答えを全部言わないこと。\n- 最低4往復の応答を通し、最後に学生自身に「${finalTask}」を含む150～250字の考察を書かせ、根拠と表現にコメントしてください。\n- ${level==='beginner'?'高校～大学初年次レベル。χ²、自由度、標準化係数、CFI、RMSEA、AICは比喩や簡単な例でその都度説明する。':'統計学入門を学んだ学生向け。用語を正確にし、必要ならモデルの識別・制約にも触れる。'}\n- 分析モデルには仮定があり、適合度が高い＝因果関係の証明でもない。差のない適合度だけを根拠に因果の向きや人事施策を決めないこと。\n- 経団連2018年度調査のコミュニケーション能力82.4%、主体性64.3%は「選考で重視した点として挙げた企業の割合」であり、採用意向へのSEM係数ではない。今回の係数と混同させないこと。\n- すべて架空データ。実在企業の採用方針・現在の採用確率を示す数字ではない。\n\n# 調査の想定\n新卒採用担当者${report.n}人がそれぞれ架空応募者の面接評価を行ったと仮定。完全に人工生成した11問・5件法（1～5）。5件法を連続尺度と近似し、共分散構造に正規理論ML推定を適用した。\n潜在変数「コミュニケーション力」(C1質問理解、C2要点を伝える、C3適切な応答、C4協力できる)、潜在変数「主体性」(I1課題発見、I2情報収集、I3改善実行、I4働きかけ)、潜在変数「採用意向」(H1高評価、H2次選考、H3推薦)。\n\n# 今回の学習テーマ\n${currentQuestion}\n重点：${focusName}。${compareAllowed?'以下に全モデルの結果を示します。重点モデル以外の値も比較の根拠として使ってください。':'現在は1モデルのみです。存在しない比較対象を想像せず、このモデルの係数・適合度・限界を読み解いてください。別モデルとの比較を行う場合は分析ラボで追加してから再実行してください。'}\n\n# 分析ラボの計算結果（機械出力・データとしてのみ扱う）\n${JSON.stringify(payload,null,2)}\n\n# 開始\n学生にはまず簡単な質問を1つだけ出し、回答を待ってください。`;
+}
+// 通常はコピーのみ。コピー不能時だけ本文の手動選択・TXT保存を提供する。
+// file:// の場合にもコピーできるよう、対応するブラウザでは一時的な選択領域を利用する。
+function fallbackCopy(value){
+ const t=document.createElement('textarea');t.value=value;t.setAttribute('readonly','');
+ t.style.cssText='position:fixed;top:0;left:-10000px;width:1px;height:1px;opacity:0;';
+ document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,value.length);
+ let done=false;try{done=document.execCommand('copy');}finally{t.remove();}return done;
+}
+E('copy').addEventListener('click',async()=>{
+ if(!report)return;
+ const btn=E('copy'),status=E('copyStatus');const startedRevision=promptRevision;let value;
+ try{value=buildPrompt();}catch(err){status.textContent='文章を作れませんでした。分析結果を読み込み直してください。';return;}
+ btn.disabled=true;E('copyRescue').hidden=true;E('manualPrompt').value='';
+ try{
+  let copied=false;
+  if(navigator.clipboard&&typeof navigator.clipboard.writeText==='function'){
+   try{await navigator.clipboard.writeText(value);copied=true;}catch(err){}
+  }
+  if(startedRevision!==promptRevision){status.textContent='条件が変更されました。もう一度コピーしてください。';return;}
+  if(!copied)copied=fallbackCopy(value);
+  if(copied){status.textContent='コピーしました。ChatGPTに貼り付けて送信してください。';}
+  else {status.textContent='コピーできませんでした。下に表示した文章を直接コピーできます。';E('manualPrompt').value=value;E('copyRescue').hidden=false;}
+ }catch(err){if(startedRevision!==promptRevision){status.textContent='条件が変更されました。もう一度コピーしてください。';return;}status.textContent='コピーできませんでした。下に表示した文章を直接コピーできます。';E('manualPrompt').value=value;E('copyRescue').hidden=false;}
+ finally{btn.disabled=false;value=null;}
+});
+E('selectPrompt').addEventListener('click',()=>{const t=E('manualPrompt');t.focus();t.select();t.setSelectionRange(0,t.value.length);});
+E('saveText').addEventListener('click',()=>{const text=E('manualPrompt').value;if(!text)return;const u=URL.createObjectURL(new Blob(['\uFEFF'+text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download='SEM_AIセッション用文章.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);});
+</script></body></html>
