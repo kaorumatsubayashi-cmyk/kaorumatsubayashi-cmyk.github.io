@@ -309,100 +309,74 @@ footer a{color:var(--fuji)}
 })();
 </script>
 <!-- /printing-revolution-toolbox-v14n-matched -->
-<!-- SEM-V14-CARDS-MATCHED-START -->
+<!-- SEM-CARD-CLEAN-V14-START -->
 <script>
 (function(){
- 'use strict';
- const SOURCE_ID='printing-revolution-v14n-matched-card';
- const SOURCE_TITLES=['一枚の紙が百の村を動かす','印刷革命は何を生んだか'];
- const ITEMS=[
-  {id:'sem-analysis-lab-v14-toolbox-card',url:'/sem-analysis-lab/',title:'SEM分析ラボ',description:'Excelの回答データを読み込み、共分散構造分析（SEM）でパス係数やモデルの適合度を調べます。',tag:'統計分析・マーケティング授業'},
-  {id:'sem-ai-prompt-v14-toolbox-card',url:'/sem-ai-prompt-maker/',title:'SEM｜AIセッション・プロンプトメーカー',description:'SEM分析ラボの結果を使い、AIと対話しながら係数やモデル比較の意味を考える授業用教材です。',tag:'統計分析・AIセッション'}
- ];
- function leafTitle(root,text){
-   return Array.from(root.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,span,div,p,a'))
-    .find(el=>el.children.length===0 && (el.textContent||'').trim()===text);
- }
- function findSource(){
-   const known=document.getElementById(SOURCE_ID);
-   if(known && known.parentElement)return known;
-   const all=document.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,span,div,p,a');
-   for(const text of SOURCE_TITLES){
-     const title=Array.from(all).find(el=>el.children.length===0 && (el.textContent||'').trim()===text);
-     if(!title)continue;
-     const card=title.closest('a[href],[class*="card"],article,li');
-     if(card && card.parentElement)return card;
-   }
-   return null;
- }
- function resetClonedIds(copy){
-   copy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-   copy.querySelectorAll('[aria-labelledby],[aria-describedby]').forEach(el=>{
-     el.removeAttribute('aria-labelledby');el.removeAttribute('aria-describedby');
-   });
- }
- function buildCard(source,item){
-   const copy=source.cloneNode(true);
-   resetClonedIds(copy); copy.id=item.id;
-   for(const attr of Array.from(copy.attributes)){
-     if(/^on/i.test(attr.name))copy.removeAttribute(attr.name);
-   }
-   copy.querySelectorAll('[onclick],[onkeydown],[onmousedown],[onmouseup]').forEach(el=>{
-     for(const attr of ['onclick','onkeydown','onmousedown','onmouseup'])el.removeAttribute(attr);
-   });
-   const title=SOURCE_TITLES.map(t=>leafTitle(copy,t)).find(Boolean);
-   if(!title)return null; // 無理に別構造のカードへ書き換えない。
-   title.textContent=item.title;
-   const parts=Array.from(copy.querySelectorAll('p,small,[class*="desc"],[class*="tag"],[class*="meta"]'))
-     .filter(el=>el.children.length===0 && el!==title && (el.textContent||'').trim()!==item.title);
-   if(parts.length){
-     parts[0].textContent=item.description;
-     if(parts.length>1)parts[1].textContent=item.tag;
-   }else{
-     // 既存のカードのレイアウトを維持したまま説明を追加。
-     const desc=document.createElement('p');desc.textContent=item.description;title.after(desc);
-   }
-   if(copy.tagName.toLowerCase()==='a')copy.href=item.url;
-   else{
-     const anchors=copy.querySelectorAll('a[href]');
-     if(anchors.length){anchors.forEach(a=>a.href=item.url);}
-     else{
-       copy.setAttribute('role','link');copy.tabIndex=0;
-       copy.addEventListener('click',()=>{location.href=item.url});
-       copy.addEventListener('keydown',e=>{if(e.key==='Enter')location.href=item.url});
-     }
-   }
-   return copy;
- }
- function update(){
-   const source=findSource();if(!source)return false;
-   const host=source.parentElement;
-   if(!host)return false;
-   let cursor=source;
-   for(const item of ITEMS){
-     let existing=document.getElementById(item.id);
-     if(existing){
-       // 過去の横長カードなどが残っても、同じ見た目のカードに置き換える。
-       if(existing.parentElement!==host || existing.tagName!==source.tagName || existing.className!==source.className){existing.remove();existing=null;}
-     }
-     if(existing){cursor=existing;continue;}
-     const other=Array.from(host.querySelectorAll('a[href]')).find(a=>{
-       try{return new URL(a.href,location.href).pathname.replace(/\/+$/,'/')===item.url;}catch(_){return false;}
-     });
-     if(other){cursor=other.closest('a[href],[class*="card"],article,li')||other;continue;}
-     const copy=buildCard(source,item);if(!copy)return false;
-     cursor.insertAdjacentElement('afterend',copy);cursor=copy;
-   }
-   return true;
- }
- function start(){
-   if(update())return;
-   const mo=new MutationObserver(()=>{if(update())mo.disconnect();});
-   mo.observe(document.body||document.documentElement,{subtree:true,childList:true});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+  'use strict';
+  const SPECS=[
+    {id:'sem-analysis-lab-v14-toolbox-card',path:'/sem-analysis-lab/',title:'SEM分析ラボ',
+     desc:'Excelの回答データを読み込み、共分散構造分析（SEM）でパス係数やモデルの適合度を調べます。',
+     meta:'統計分析・マーケティング授業'},
+    {id:'sem-ai-prompt-v14-toolbox-card',path:'/sem-ai-prompt-maker/',title:'SEM｜AIセッション・プロンプトメーカー',
+     desc:'SEM分析ラボの結果を使い、AIと対話しながら係数やモデル比較の意味を考えます。',
+     meta:'統計分析・AIセッション'}
+  ];
+  const SOURCE_NAMES=['一枚の紙が百の村を動かす','印刷革命は何を生んだか'];
+  function findSource(){
+    const byId=document.getElementById('printing-revolution-v14n-matched-card');
+    if(byId && byId.matches('a.item') && byId.querySelector('.t,.d,.u')) return byId;
+    return Array.from(document.querySelectorAll('a.item')).find(a=>
+      SOURCE_NAMES.includes((a.querySelector('.t')?.textContent||'').trim())
+      && a.querySelector('.d') && a.querySelector('.u')) || null;
+  }
+  function mk(source,spec){
+    const c=source.cloneNode(false); // 外枠だけ。旧「印刷革命」の子要素はコピーしない。
+    c.removeAttribute('id');c.id=spec.id;
+    for(const a of Array.from(c.attributes)) if(/^on/i.test(a.name)) c.removeAttribute(a.name);
+    c.setAttribute('href',spec.path);
+    for(const [cls,value] of [['t',spec.title],['d',spec.desc],['u',spec.meta]]){
+      const ref=Array.from(source.children).find(el=>el.classList.contains(cls));
+      if(!ref) return null;
+      const child=ref.cloneNode(false); // .t / .d / .uの外見のみ継承
+      child.textContent=value;
+      c.appendChild(child);
+    }
+    return c;
+  }
+  function matchesPath(a,path){
+    try {return new URL(a.getAttribute('href'),location.href).pathname.replace(/\/+$/,'/')===path;}
+    catch(_) {return false;}
+  }
+  function install(){
+    const source=findSource();if(!source||!source.parentElement) return false;
+    const host=source.parentElement;
+    const targets=Array.from(document.querySelectorAll('a[href]')).filter(a=>
+      SPECS.some(x=>matchesPath(a,x.path)) || SPECS.some(x=>a.id===x.id));
+    const correct=targets.length===SPECS.length && SPECS.every(x=>{
+      const a=document.getElementById(x.id);
+      return a && a.parentElement===host && a.className===source.className
+         && (a.querySelector('.t')?.textContent||'')===x.title
+         && (a.querySelector('.d')?.textContent||'')===x.desc
+         && (a.querySelector('.u')?.textContent||'')===x.meta
+         && a.children.length===3;
+    });
+    if(correct) return true;
+    const next=SPECS.map(x=>mk(source,x));
+    if(next.some(x=>!x)) return false;
+    targets.forEach(a=>{if(a!==source)a.remove();});
+    let cursor=source;
+    for(const a of next){cursor.after(a);cursor=a;}
+    return true;
+  }
+  function start(){
+    if(install())return;
+    const observer=new MutationObserver(()=>{if(install())observer.disconnect();});
+    observer.observe(document.body||document.documentElement,{subtree:true,childList:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
 })();
 </script>
-<!-- SEM-V14-CARDS-MATCHED-END -->
+<!-- SEM-CARD-CLEAN-V14-END -->
 </body>
 </html>
