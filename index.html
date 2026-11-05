@@ -309,54 +309,100 @@ footer a{color:var(--fuji)}
 })();
 </script>
 <!-- /printing-revolution-toolbox-v14n-matched -->
-<!-- SEM-TOOLBOX-V14-START -->
-<style>
-.sem-v14-card{display:block;box-sizing:border-box;text-decoration:none;margin:10px 0;padding:13px 15px;border:1px solid #8794a5;border-radius:12px;line-height:1.55;color:inherit;background:rgba(125,146,162,.08)}
-.sem-v14-card strong{display:block;font-size:1em}.sem-v14-card small{display:block;font-size:.84em;opacity:.85}
-.sem-v14-card:hover,.sem-v14-card:focus-visible{outline:2px solid #7596c8;outline-offset:2px}
-</style>
+<!-- SEM-V14-CARDS-MATCHED-START -->
 <script>
-(function(){'use strict';
+(function(){
+ 'use strict';
+ const SOURCE_ID='printing-revolution-v14n-matched-card';
+ const SOURCE_TITLES=['一枚の紙が百の村を動かす','印刷革命は何を生んだか'];
  const ITEMS=[
-  {id:'sem-analysis-lab-v14-toolbox-card',href:'/sem-analysis-lab/',title:'SEM分析ラボ',note:'Excelの回答データから共分散構造分析・モデル比較（v1.4）'},
-  {id:'sem-ai-prompt-v14-toolbox-card',href:'/sem-ai-prompt-maker/',title:'SEM｜AIセッション・プロンプトメーカー',note:'分析結果をもとにAIと学ぶ対話型教材（v1.4）'}
+  {id:'sem-analysis-lab-v14-toolbox-card',url:'/sem-analysis-lab/',title:'SEM分析ラボ',description:'Excelの回答データを読み込み、共分散構造分析（SEM）でパス係数やモデルの適合度を調べます。',tag:'統計分析・マーケティング授業'},
+  {id:'sem-ai-prompt-v14-toolbox-card',url:'/sem-ai-prompt-maker/',title:'SEM｜AIセッション・プロンプトメーカー',description:'SEM分析ラボの結果を使い、AIと対話しながら係数やモデル比較の意味を考える授業用教材です。',tag:'統計分析・AIセッション'}
  ];
- function locateHost(){
-  const labels=[...document.querySelectorAll('h1,h2,h3,h4,h5,h6,summary,button,[role="tab"],.category-title,.section-title,.category-name,.tab-title,span,strong,div')]
-    .filter(e=>e.children.length<=4 && /^授業で(?:使|つか)う$/.test((e.textContent||'').replace(/\s/g,'')));
-  for(const label of labels){
-   let host=label.closest('section,article,[role="tabpanel"],.category,.category-section,.category-group,.section,.tab-pane,.category-content,.tool-section,.tool-category');
-   if(!host)host=label.parentElement;
-   if(!host)continue;
-   if(label.matches('button,[role="tab"]')){
-    const selected=label.getAttribute('aria-controls');const panel=selected && document.getElementById(selected);
-    if(panel)host=panel;
-    else if(host===label.parentElement && host.querySelectorAll('button,[role="tab"]').length>1)continue;
+ function leafTitle(root,text){
+   return Array.from(root.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,span,div,p,a'))
+    .find(el=>el.children.length===0 && (el.textContent||'').trim()===text);
+ }
+ function findSource(){
+   const known=document.getElementById(SOURCE_ID);
+   if(known && known.parentElement)return known;
+   const all=document.querySelectorAll('h1,h2,h3,h4,h5,h6,strong,b,span,div,p,a');
+   for(const text of SOURCE_TITLES){
+     const title=Array.from(all).find(el=>el.children.length===0 && (el.textContent||'').trim()===text);
+     if(!title)continue;
+     const card=title.closest('a[href],[class*="card"],article,li');
+     if(card && card.parentElement)return card;
    }
-   if(host.matches('header,nav')||(host.closest('header,nav')&&!host.matches('section,article,[role="tabpanel"]')))continue;
-   return host;
-  }
-  return null;
+   return null;
  }
- function attach(){
-  if(!document.body)return;
-  const host=locateHost();if(!host)return;
-  for(const item of ITEMS){
-   if(document.getElementById(item.id))continue;
-   // 既に正規のカード登録があれば、二重掲載しない。
-   if([...host.querySelectorAll('a[href]')].some(a=>{try{return new URL(a.href,location.href).pathname.replace(/\/+$/,'/')===item.href}catch(_){return false}}))continue;
-   const a=document.createElement('a');a.id=item.id;a.className='sem-v14-card';a.href=item.href;
-   const title=document.createElement('strong');title.textContent=item.title;
-   const note=document.createElement('small');note.textContent=item.note;
-   a.append(title,note);host.appendChild(a);
-  }
+ function resetClonedIds(copy){
+   copy.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+   copy.querySelectorAll('[aria-labelledby],[aria-describedby]').forEach(el=>{
+     el.removeAttribute('aria-labelledby');el.removeAttribute('aria-describedby');
+   });
  }
- let scheduled=false;
- function schedule(){if(scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;attach()},50)}
- function start(){attach();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});}
+ function buildCard(source,item){
+   const copy=source.cloneNode(true);
+   resetClonedIds(copy); copy.id=item.id;
+   for(const attr of Array.from(copy.attributes)){
+     if(/^on/i.test(attr.name))copy.removeAttribute(attr.name);
+   }
+   copy.querySelectorAll('[onclick],[onkeydown],[onmousedown],[onmouseup]').forEach(el=>{
+     for(const attr of ['onclick','onkeydown','onmousedown','onmouseup'])el.removeAttribute(attr);
+   });
+   const title=SOURCE_TITLES.map(t=>leafTitle(copy,t)).find(Boolean);
+   if(!title)return null; // 無理に別構造のカードへ書き換えない。
+   title.textContent=item.title;
+   const parts=Array.from(copy.querySelectorAll('p,small,[class*="desc"],[class*="tag"],[class*="meta"]'))
+     .filter(el=>el.children.length===0 && el!==title && (el.textContent||'').trim()!==item.title);
+   if(parts.length){
+     parts[0].textContent=item.description;
+     if(parts.length>1)parts[1].textContent=item.tag;
+   }else{
+     // 既存のカードのレイアウトを維持したまま説明を追加。
+     const desc=document.createElement('p');desc.textContent=item.description;title.after(desc);
+   }
+   if(copy.tagName.toLowerCase()==='a')copy.href=item.url;
+   else{
+     const anchors=copy.querySelectorAll('a[href]');
+     if(anchors.length){anchors.forEach(a=>a.href=item.url);}
+     else{
+       copy.setAttribute('role','link');copy.tabIndex=0;
+       copy.addEventListener('click',()=>{location.href=item.url});
+       copy.addEventListener('keydown',e=>{if(e.key==='Enter')location.href=item.url});
+     }
+   }
+   return copy;
+ }
+ function update(){
+   const source=findSource();if(!source)return false;
+   const host=source.parentElement;
+   if(!host)return false;
+   let cursor=source;
+   for(const item of ITEMS){
+     let existing=document.getElementById(item.id);
+     if(existing){
+       // 過去の横長カードなどが残っても、同じ見た目のカードに置き換える。
+       if(existing.parentElement!==host || existing.tagName!==source.tagName || existing.className!==source.className){existing.remove();existing=null;}
+     }
+     if(existing){cursor=existing;continue;}
+     const other=Array.from(host.querySelectorAll('a[href]')).find(a=>{
+       try{return new URL(a.href,location.href).pathname.replace(/\/+$/,'/')===item.url;}catch(_){return false;}
+     });
+     if(other){cursor=other.closest('a[href],[class*="card"],article,li')||other;continue;}
+     const copy=buildCard(source,item);if(!copy)return false;
+     cursor.insertAdjacentElement('afterend',copy);cursor=copy;
+   }
+   return true;
+ }
+ function start(){
+   if(update())return;
+   const mo=new MutationObserver(()=>{if(update())mo.disconnect();});
+   mo.observe(document.body||document.documentElement,{subtree:true,childList:true});
+ }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 </script>
-<!-- SEM-TOOLBOX-V14-END -->
+<!-- SEM-V14-CARDS-MATCHED-END -->
 </body>
 </html>
