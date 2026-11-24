@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="ja"><!-- survey-analysis-navi v1.3.2 -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>統計分析ナビ v1.3.2</title>
+<style id="pagesize">@page{size:A4 portrait;margin:14mm}</style>
+<style>
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#eef3f5;color:#18303b;font:16px/1.75 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:860px;margin:auto;padding:16px 14px 48px}
+header{padding:14px 0 6px}
+h1{font-size:28px;line-height:1.3;margin:0}
+h2{font-size:22px;line-height:1.45;margin:6px 0 10px}
+h3{font-size:18px;line-height:1.5;margin:22px 0 8px;padding-left:10px;border-left:5px solid #087887}
+p{margin:6px 0 12px}
+.card{background:#fff;border:1px solid #cbd9de;border-radius:16px;padding:18px;margin-bottom:14px}
+.tag{font-size:14px;color:#356473;font-weight:bold}
+.lead{color:#38515b}
+.choice{display:block;width:100%;text-align:left;background:#f6fafb;border:1px solid #a8c3cc;border-radius:12px;padding:13px 14px;margin:10px 0;color:#18303b;font:inherit;cursor:pointer;touch-action:manipulation}
+.choice strong{display:block;color:#075c68;font-size:17px}
+.choice span{display:block;font-size:14.5px;color:#405a64}
+@media (hover:hover){.choice:hover{background:#e0f2f3}}
+.choice:focus-visible{outline:3px solid #087887;outline-offset:1px}
+.nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 0 16px}
+button{font:inherit;min-height:44px;padding:8px 15px;border:1px solid #9cb4be;border-radius:10px;background:#fff;color:#18303b;cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.4;cursor:default}
+#reset{margin-left:auto;color:#8b4228;border-color:#d3a58f}
+.primary{background:#086875;color:#fff;border:0}
+.note{background:#edf6f6;border-left:4px solid #087887;padding:10px 12px;margin:12px 0;border-radius:0 8px 8px 0}
+.warn{background:#fff6e4;border-left:4px solid #a66a16;padding:10px 12px;margin:12px 0;border-radius:0 8px 8px 0}
+.status{background:#f3f7f8;border:1px dashed #a8c3cc;border-radius:10px;padding:8px 12px;font-size:14.5px;margin-bottom:10px}
+.status b{color:#075c68}
+.namebox{margin:6px 0 4px}
+.namebox label{font-size:14.5px;color:#405a64;display:block}
+.namebox input{font:inherit;width:100%;max-width:420px;padding:9px 11px;border:1px solid #a8c3cc;border-radius:9px;min-height:44px}
+.concl{background:linear-gradient(135deg,#e2f4f1,#f4fbfa);border:2px solid #087887;border-radius:16px;padding:16px 18px;margin:8px 0 6px}
+.concl .m{font-size:24px;font-weight:bold;color:#064f59;line-height:1.35;margin:2px 0 8px}
+.concl dl{display:grid;grid-template-columns:7.5em 1fr;gap:4px 10px;margin:0}
+.concl dt{font-weight:bold;color:#356473}
+.concl dd{margin:0}
+.why{font-size:14.5px;color:#405a64;margin-top:8px}
+ol.steps{padding-left:0;list-style:none;counter-reset:st}
+ol.steps>li{counter-increment:st;position:relative;padding:8px 0 8px 44px;border-bottom:1px dashed #d6e3e7}
+ol.steps>li::before{content:counter(st);position:absolute;left:4px;top:8px;width:30px;height:30px;border-radius:50%;background:#087887;color:#fff;font-weight:bold;text-align:center;line-height:30px}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14.5px;background:#eef4f6;padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.xlwrap{overflow-x:auto;margin:10px 0;-webkit-overflow-scrolling:touch}
+table.xl{border-collapse:collapse;font-size:14px;background:#fff;min-width:max-content}
+table.xl th{background:#e9eef0;color:#526a73;font-weight:normal;text-align:center;border:1px solid #c5d3d8;padding:2px 6px;min-width:26px}
+table.xl td{border:1px solid #d5dfe3;padding:3px 8px;white-space:nowrap;position:relative}
+table.xl td.n{text-align:right}
+table.xl td.h{background:#f6fafb;font-weight:bold}
+table.xl td.mk{outline:3px solid #d1453b;outline-offset:-3px;background:#fff1ee}
+table.xl td.mk2{outline:3px solid #d39a14;outline-offset:-3px;background:#fff8e6}
+.bd{display:inline-block;background:#d1453b;color:#fff;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:12px;font-weight:bold;margin-right:5px;vertical-align:1px}
+.bd.y{background:#b47c00}
+.cap{font-size:14px;color:#526a73;margin:4px 0 10px}
+.formulas{font-size:14.5px;margin:6px 0 12px;padding-left:20px}
+.read{display:grid;gap:8px;margin:10px 0}
+.read>div{background:#f8fbfc;border:1px solid #d6e3e7;border-radius:10px;padding:10px 12px}
+.read b.k{display:inline-block;min-width:8.5em;color:#064f59}
+.guide{background:#fbfdfd;border:1px solid #cfe0e4;border-radius:12px;padding:12px 14px;margin:12px 0}
+.guide>b{display:block;color:#064f59;margin-bottom:4px}
+table.rule{border-collapse:collapse;width:100%;font-size:15px;margin:8px 0}
+table.rule td,table.rule th{border:1px solid #c8d8dd;padding:6px 8px;text-align:left;vertical-align:top}
+table.rule th{background:#edf6f6}
+.report{background:#fffdf6;border:1px solid #e4d6a8;border-radius:12px;padding:12px 14px;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}
+details{margin:12px 0}
+summary{cursor:pointer;min-height:44px;font-weight:bold;display:flex;align-items:center;gap:8px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'';width:0;height:0;border-left:8px solid #087887;border-top:6px solid transparent;border-bottom:6px solid transparent;transition:transform .15s;flex:none}
+details[open]>summary::before{transform:rotate(90deg)}
+details.adv{border:1px solid #d6e3e7;border-radius:12px;padding:4px 14px;background:#fafcfc}
+.term{display:inline;border:0;background:none;padding:0;min-height:0;font:inherit;color:#06606c;text-decoration:underline dotted 1.5px;text-underline-offset:3px;cursor:pointer}
+.term:focus-visible{outline:2px solid #087887}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.tabs button{min-height:40px;padding:6px 12px;font-size:14.5px}
+.tabs button[aria-selected=true]{background:#086875;color:#fff;border-color:#086875}
+.chartbox{overflow:auto;max-height:72vh;border:1px solid #d6e3e7;border-radius:12px;background:#fcfefe;-webkit-overflow-scrolling:touch}
+.chartbox svg{display:block}
+.chartbox.fit svg{width:100%;height:auto}
+.legend{font-size:14px;color:#405a64;display:flex;gap:14px;flex-wrap:wrap;margin:8px 0}
+.legend i{display:inline-block;width:18px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+svg .nd rect,svg .nd polygon{fill:#fff;stroke:#8fb1ba;stroke-width:1.5}
+svg .nd.auto rect{stroke-dasharray:5 3;fill:#f6f8f9}
+svg .nd.sub rect{fill:#f2f8f9}
+svg .nd.sub .inner{fill:none;stroke:#8fb1ba;stroke-width:1}
+svg .nd.leaf rect{fill:#eef7ff;stroke:#7d9fc4}
+svg .nd.out rect{fill:#f3f1fb;stroke:#9b8fc4}
+svg .nd text{font-size:12px;fill:#18303b}
+svg .nd.leaf{cursor:pointer}
+svg .nd.leaf:hover rect{fill:#dcefff}
+svg .nd.past rect{fill:#d8f0ec;stroke:#0c8a7a;stroke-width:2}
+svg .nd.cur rect{fill:#ffe7a8;stroke:#c27c00;stroke-width:3}
+svg .ed path{fill:none;stroke:#9db4bb;stroke-width:1.4}
+svg .ed text{font-size:11px;fill:#2f5763;paint-order:stroke;stroke:#fcfefe;stroke-width:4px;stroke-linejoin:round}
+svg .ed.taken path{stroke:#0c8a7a;stroke-width:3.2}
+svg .ed.taken text{fill:#064f59;font-weight:bold}
+svg .ttl{font-size:15px;font-weight:bold;fill:#064f59}
+dialog{border:0;border-radius:16px;padding:0;max-width:min(860px,96vw);width:96vw;max-height:92vh;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,30,40,.45)}
+.dlghead{position:sticky;top:0;background:#fff;border-bottom:1px solid #d6e3e7;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+.dlgbody{padding:6px 18px 20px}
+#termdlg{max-width:480px}
+.lib a,.lib button.lnk{display:block;text-align:left;width:100%;margin:6px 0}
+.dict dt{font-weight:bold;color:#064f59;margin-top:10px}
+.dict dd{margin:2px 0 0 0}
+footer{font-size:13px;color:#526a73;margin-top:20px}
+.small{font-size:14px;color:#526a73}
+#printChart{display:none}
+@media (max-width:420px){body{font-size:15.5px}h1{font-size:25px}h2{font-size:20px}.concl .m{font-size:21px}.concl dl{grid-template-columns:6.5em 1fr}.card{padding:15px}}
+@media print{
+ body{background:#fff;font-size:11.5pt}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ main{max-width:none;padding:0}
+ .nav,header p,footer,button:not(.term),#chartPanel,#libPanel,dialog,.namebox{display:none!important}
+ .term{text-decoration:none;color:inherit}
+ .card{border:0;padding:0}
+ details>*{display:block}
+ details.trail{display:block}
+ .xlwrap{overflow:visible}
+ h3{break-after:avoid}
+ table.xl,.read>div,.report,.guide{break-inside:avoid}
+ table.xl{font-size:9pt}
+ table.xl td{padding:2px 5px}
+ .concl{border-width:1.5px}
+ body.print-chart main{display:none}
+ body.print-chart #printChart{display:block}
+ #printChart svg{width:269mm;height:182mm}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <div class="tag">Excelで学ぶアンケート分析</div>
+ <h1>統計分析ナビ</h1>
+ <p class="lead">どの分析を使えばいい？ 質問に答えていくと、使う分析方法、Excelでの操作、結果の読み方、レポートの書き方までわかります。</p>
+</header>
+<section id="screen" class="card" aria-live="polite"></section>
+<div class="nav"><button id="back">← 一つ戻る</button><button id="reset">最初からやり直す</button></div>
+
+<details id="chartPanel" class="card" open>
+ <summary>フローチャート（全体図と現在地）</summary>
+ <div class="tabs" role="tablist" id="tabs"></div>
+ <label class="small" style="display:inline-flex;align-items:center;gap:6px;min-height:36px"><input type="checkbox" id="fitchk"> 画面の幅に縮小して表示</label>
+ <div class="chartbox" id="chartbox"></div>
+ <div class="legend"><span><i style="background:#ffe7a8;border:2px solid #c27c00"></i>いまいる場所</span><span><i style="background:#d8f0ec;border:2px solid #0c8a7a"></i>通ってきた道</span><span><i style="background:#eef7ff;border:1px solid #7d9fc4"></i>分析方法（押すと説明が開きます）</span></div>
+ <p class="small">点線の箱は、それまでの答えから自動で決まる分かれ道です。二重線の箱は「図B 質問の種類の見分け方」で判断します。</p>
+ <button id="printChartBtn">フローチャートをA4横で印刷</button>
+</details>
+
+<details id="libPanel" class="card">
+ <summary>分析方法の一覧・用語の辞書・見本データ</summary>
+ <div id="library"></div>
+</details>
+<footer>統計分析ナビ v1.3.2 ／ Excel（Microsoft 365）を想定</footer>
+</main>
+<div id="printChart"></div>
+<dialog id="dlg"><div class="dlghead"><b id="dlgtitle"></b><button id="dlgclose">閉じる</button></div><div class="dlgbody" id="dlgbody"></div></dialog>
+<dialog id="termdlg"><div class="dlghead"><b id="termtitle"></b><button id="termclose">閉じる</button></div><div class="dlgbody" id="termbody"></div></dialog>
+
+<script>
+'use strict';
+const S={"n":60,"single_cat":{"labels":["実家","一人暮らし","寮"],"counts":[30,18,12],"pct":[50.0,30.0,20.0]},"single_num":{"mean":6.441666666666666,"median":6.5,"sd":0.8640252010344367,"min":5.0,"max":8.0,"n":60},"single_multi":{"labels":["Instagram","TikTok","YouTube"],"counts":[48,33,30],"pct":[80.0,55.00000000000001,50.0]},"cross":{"rows":["実家","一人暮らし","寮"],"cols":["あり","なし"],"O":[[15,15],[15,3],[4,8]],"R":[30,18,12],"C":[34,26],"N":60,"E":[[17.0,13.0],[10.2,7.8],[6.8,5.2]],"chi2":8.416289592760181,"df":2,"p":0.014873936939147313,"V":0.37452836102579695,"minE":5.2,"rowpct":[[50.0,50.0],[83.33333333333334,16.666666666666664],[33.33333333333333,66.66666666666666]]},"chi23":{"rows":["実家","一人暮らし","寮"],"cols":["あり","なし"],"O":[[15,15],[15,3],[4,8]],"R":[30,18,12],"C":[34,26],"N":60,"E":[[17.0,13.0],[10.2,7.8],[6.8,5.2]],"chi2":8.416289592760181,"df":2,"p":0.014873936939147313,"V":0.37452836102579695,"minE":5.2,"rowpct":[[50.0,50.0],[83.33333333333334,16.666666666666664],[33.33333333333333,66.66666666666666]]},"chi22":{"rows":["あり","なし"],"cols":["加入","未加入"],"O":[[17,17],[12,14]],"R":[34,26],"C":[29,31],"N":60,"E":[[16.433333333333334,17.566666666666666],[12.566666666666666,13.433333333333334]],"chi2":0.08727646102507051,"df":1,"p":0.7676685521809589,"V":0.038139319392867715,"minE":12.566666666666666,"rowpct":[[50.0,50.0],[46.15384615384615,53.84615384615385]]},"pairedcat":{"O":[[18,6],[19,17]],"b":6,"c":19,"chi2":6.76,"p":0.009322376047437499,"p_exact":0.01463329792022705,"pre_yes":24,"post_yes":37},"paired":{"m1":61.88333333333333,"m2":64.66666666666667,"diff":2.783333333333333,"p":0.03425639674382736,"t":2.167344696388653,"n":60},"welch":{"n1":34,"n2":26,"m1":6.1911764705882355,"m2":6.769230769230769,"sd1":0.7786420374343356,"sd2":0.8744228866031496,"p":0.01045921193365512,"t":-2.6595796665480673,"p_equal":0.00903375322516821},"corr":{"r":0.6319080909053546,"p":6.141993692973241e-08,"n":60},"simple":{"Y":"期末テスト","X":["勉強時間"],"multR":0.6319080909053545,"R2":0.3993078353516498,"adjR2":0.3889510738921955,"se":11.220458593155964,"n":60,"df_reg":1,"df_res":58,"ss_reg":4854.059252971136,"ss_res":7302.124080362197,"ms_reg":4854.059252971136,"ms_res":125.89869104072753,"F":38.555279747911555,"pF":6.14199369297324e-08,"coef":[45.819326542161875,2.269524617996603],"coef_se":[3.3948022185257813,0.36550470234609134],"t":[13.496906032440165,6.209289794164184],"p":[1.515839054633546e-19,6.14199369297331e-08],"lo":[39.02389158612378,1.5378874647731318],"hi":[52.61476149819997,3.001161771220074],"names":["切片","勉強時間"]},"multi":{"Y":"期末テスト","X":["勉強時間","睡眠時間"],"multR":0.6479491897731607,"R2":0.4198381525276955,"adjR2":0.39948159647603565,"se":11.123354426593911,"n":60,"df_reg":2,"df_res":57,"ss_reg":5103.629552454629,"ss_res":7052.553780878703,"ms_reg":2551.8147762273147,"ms_res":123.72901369962636,"F":20.624223049431944,"pF":1.8245308607734935e-07,"coef":[31.011643918987787,2.1787281945632406,2.417134165073377],"coef_se":[10.955907249368014,0.3679381828871537,1.7019236855212054],"t":[2.8305865697043644,5.921451743515988,1.420236515677342],"p":[0.006406993122467778,1.9336682846351104e-07,0.16098573672301303],"lo":[9.072818076932393,1.441944692177418,-0.9909092295320869],"hi":[52.95046976104318,2.9155116969490633,5.825177559678841],"names":["切片","勉強時間","睡眠時間"]},"dummy":{"Y":"期末テスト","X":["勉強時間","一人暮らし","寮"],"multR":0.6972665635400571,"R2":0.48618066063096044,"adjR2":0.4586546245933333,"se":10.561116426359092,"n":60,"df_reg":3,"df_res":56,"ss_reg":5910.10124375107,"ss_res":6246.082089582263,"ms_reg":1970.0337479170232,"ms_res":111.53718017111183,"F":17.66257444284272,"pF":3.4323010297981366e-08,"coef":[48.29751551545526,2.1854612390234887,-7.95191063902535,3.0675830089420906],"coef_se":[3.6786406469816426,0.3480898671377446,3.1799758796558426,3.626964769047935],"t":[13.129174646369387,6.278439694306492,-2.50061979711807,0.8457713830364334],"p":[9.810399413165143e-19,5.337194232001432e-08,0.015350847770895945,0.40127978124128066],"lo":[40.92831278141276,1.488153443354813,-14.322167806106012,-4.198100502241401],"hi":[55.66671824949776,2.8827690346921644,-1.5816534719446862,10.333266520125582],"names":["切片","勉強時間","一人暮らし","寮"]},"dsimple":{"Y":"睡眠時間","X":["アルバイトあり"],"multR":0.33432336307651733,"R2":0.11177211109879281,"adjR2":0.09645783715222034,"se":0.8212977279109829,"n":60,"df_reg":1,"df_res":58,"ss_reg":4.923095776772243,"ss_res":39.122737556561084,"ms_reg":4.923095776772243,"ms_res":0.6745299578717429,"F":7.2985576390194,"pF":0.00903375322516821,"coef":[6.769230769230769,-0.5780542986425331],"coef_se":[0.16106973619567383,0.21396863397735746],"t":[42.0267079906758,-2.7015842831604178],"p":[3.9186692020933066e-45,0.009033753225168261],"lo":[6.446814662121228,-1.0063590543336818],"hi":[7.09164687634031,-0.14974954295138432],"names":["切片","アルバイトあり"],"groupmeans":{"あり":6.1911764705882355,"なし":6.769230769230769}},"anova3":{"Y":"睡眠時間","X":["一人暮らし","寮"],"multR":0.4472276971789149,"R2":0.20001261312395524,"adjR2":0.17194288025111149,"se":0.7862425757450623,"n":60,"df_reg":2,"df_res":57,"ss_reg":8.809722222222213,"ss_res":35.236111111111114,"ms_reg":4.4048611111111065,"ms_res":0.61817738791423,"F":7.12556168703192,"pF":0.0017292965726937255,"coef":[6.583333333333334,-0.6944444444444481,0.3333333333333335],"coef_se":[0.1435475981355116,0.23441224615606474,0.26855296545869706],"t":[45.86167528291588,-2.962492172794196,1.241220080232551],"p":[1.0877428599542805e-46,0.004444898829354159,0.21960839823653758],"lo":[6.295884226302785,-1.1638468706067888,-0.20443470398787822],"hi":[6.870782440363882,-0.22504201828210735,0.8711013706545452],"names":["切片","一人暮らし","寮"],"groupmeans":{"一人暮らし":5.888888888888889,"実家":6.583333333333333,"寮":6.916666666666667},"groupn":{"実家":30,"一人暮らし":18,"寮":12}}};
+const ROWS=[{"ID":1,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":3,"睡眠時間":8.0,"期末テスト":49,"小テスト前":81,"小テスト後":100,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":2,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":5,"睡眠時間":5.0,"期末テスト":45,"小テスト前":66,"小テスト後":83,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":3,"居住形態":"寮","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":9,"睡眠時間":8.0,"期末テスト":56,"小テスト前":65,"小テスト後":82,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":4,"居住形態":"実家","アルバイト":"あり","サークル":"加入","Instagram":0,"TikTok":0,"YouTube":0,"勉強時間":7,"睡眠時間":5.0,"期末テスト":51,"小テスト前":40,"小テスト後":41,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":5,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":16,"睡眠時間":5.0,"期末テスト":81,"小テスト前":73,"小テスト後":68,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":6,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":7,"睡眠時間":5.5,"期末テスト":59,"小テスト前":46,"小テスト後":41,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":7,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":5,"睡眠時間":6.5,"期末テスト":70,"小テスト前":62,"小テスト後":74,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":8,"居住形態":"寮","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":4,"睡眠時間":7.0,"期末テスト":65,"小テスト前":82,"小テスト後":100,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":9,"居住形態":"寮","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":12,"睡眠時間":7.0,"期末テスト":79,"小テスト前":70,"小テスト後":85,"授業前の賛否":"賛成","授業後の賛否":"反対"},{"ID":10,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":3,"睡眠時間":5.5,"期末テスト":47,"小テスト前":50,"小テスト後":62,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":11,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":8,"睡眠時間":7.0,"期末テスト":59,"小テスト前":62,"小テスト後":69,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":12,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":5,"睡眠時間":7.0,"期末テスト":39,"小テスト前":43,"小テスト後":32,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":13,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":12,"睡眠時間":6.5,"期末テスト":94,"小テスト前":56,"小テスト後":73,"授業前の賛否":"賛成","授業後の賛否":"反対"},{"ID":14,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":6,"睡眠時間":6.5,"期末テスト":56,"小テスト前":81,"小テスト後":70,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":15,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":8,"睡眠時間":6.0,"期末テスト":75,"小テスト前":78,"小テスト後":95,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":16,"居住形態":"実家","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":5,"睡眠時間":5.5,"期末テスト":67,"小テスト前":82,"小テスト後":63,"授業前の賛否":"賛成","授業後の賛否":"反対"},{"ID":17,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":10,"睡眠時間":6.0,"期末テスト":68,"小テスト前":60,"小テスト後":65,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":18,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":0,"TikTok":0,"YouTube":1,"勉強時間":4,"睡眠時間":5.5,"期末テスト":56,"小テスト前":86,"小テスト後":100,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":19,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":0,"睡眠時間":7.0,"期末テスト":46,"小テスト前":78,"小テスト後":82,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":20,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":14,"睡眠時間":5.5,"期末テスト":67,"小テスト前":63,"小テスト後":74,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":21,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":13,"睡眠時間":6.0,"期末テスト":72,"小テスト前":40,"小テスト後":41,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":22,"居住形態":"実家","アルバイト":"あり","サークル":"加入","Instagram":0,"TikTok":1,"YouTube":0,"勉強時間":9,"睡眠時間":7.0,"期末テスト":61,"小テスト前":67,"小テスト後":76,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":23,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":0,"TikTok":1,"YouTube":1,"勉強時間":6,"睡眠時間":6.5,"期末テスト":61,"小テスト前":46,"小テスト後":47,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":24,"居住形態":"一人暮らし","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":9,"睡眠時間":6.5,"期末テスト":30,"小テスト前":40,"小テスト後":14,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":25,"居住形態":"寮","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":3,"睡眠時間":5.5,"期末テスト":73,"小テスト前":53,"小テスト後":57,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":26,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":7,"睡眠時間":6.0,"期末テスト":69,"小テスト前":58,"小テスト後":62,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":27,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":0,"TikTok":1,"YouTube":0,"勉強時間":8,"睡眠時間":6.0,"期末テスト":47,"小テスト前":73,"小テスト後":82,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":28,"居住形態":"寮","アルバイト":"なし","サークル":"未加入","Instagram":0,"TikTok":1,"YouTube":1,"勉強時間":8,"睡眠時間":6.5,"期末テスト":71,"小テスト前":71,"小テスト後":64,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":29,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":7,"睡眠時間":7.0,"期末テスト":78,"小テスト前":46,"小テスト後":33,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":30,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":7,"睡眠時間":5.5,"期末テスト":78,"小テスト前":57,"小テスト後":75,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":31,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":18,"睡眠時間":8.0,"期末テスト":95,"小テスト前":47,"小テスト後":52,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":32,"居住形態":"寮","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":6,"睡眠時間":7.0,"期末テスト":62,"小テスト前":63,"小テスト後":79,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":33,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":7,"睡眠時間":5.5,"期末テスト":63,"小テスト前":52,"小テスト後":54,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":34,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":11,"睡眠時間":6.5,"期末テスト":61,"小テスト前":42,"小テスト後":45,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":35,"居住形態":"寮","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":10,"睡眠時間":6.5,"期末テスト":71,"小テスト前":66,"小テスト後":71,"授業前の賛否":"賛成","授業後の賛否":"反対"},{"ID":36,"居住形態":"寮","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":8,"睡眠時間":8.0,"期末テスト":64,"小テスト前":55,"小テスト後":48,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":37,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":16,"睡眠時間":7.5,"期末テスト":68,"小テスト前":66,"小テスト後":59,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":38,"居住形態":"実家","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":11,"睡眠時間":6.5,"期末テスト":87,"小テスト前":56,"小テスト後":49,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":39,"居住形態":"寮","アルバイト":"なし","サークル":"未加入","Instagram":0,"TikTok":0,"YouTube":1,"勉強時間":10,"睡眠時間":7.0,"期末テスト":76,"小テスト前":45,"小テスト後":43,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":40,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":7,"睡眠時間":6.0,"期末テスト":47,"小テスト前":33,"小テスト後":32,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":41,"居住形態":"寮","アルバイト":"あり","サークル":"加入","Instagram":0,"TikTok":1,"YouTube":0,"勉強時間":11,"睡眠時間":6.5,"期末テスト":66,"小テスト前":67,"小テスト後":69,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":42,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":0,"TikTok":1,"YouTube":1,"勉強時間":18,"睡眠時間":7.5,"期末テスト":100,"小テスト前":61,"小テスト後":69,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":43,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":10,"睡眠時間":5.0,"期末テスト":45,"小テスト前":63,"小テスト後":58,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":44,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":7,"睡眠時間":6.5,"期末テスト":65,"小テスト前":65,"小テスト後":76,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":45,"居住形態":"寮","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":0,"睡眠時間":6.0,"期末テスト":47,"小テスト前":74,"小テスト後":80,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":46,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":0,"TikTok":1,"YouTube":0,"勉強時間":5,"睡眠時間":6.0,"期末テスト":59,"小テスト前":83,"小テスト後":79,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":47,"居住形態":"実家","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":11,"睡眠時間":7.0,"期末テスト":74,"小テスト前":70,"小テスト後":73,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":48,"居住形態":"寮","アルバイト":"なし","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":14,"睡眠時間":8.0,"期末テスト":94,"小テスト前":70,"小テスト後":74,"授業前の賛否":"賛成","授業後の賛否":"反対"},{"ID":49,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":10,"睡眠時間":6.0,"期末テスト":67,"小テスト前":66,"小テスト後":67,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":50,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":7,"睡眠時間":6.0,"期末テスト":60,"小テスト前":67,"小テスト後":61,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":51,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"未加入","Instagram":0,"TikTok":1,"YouTube":0,"勉強時間":10,"睡眠時間":5.5,"期末テスト":60,"小テスト前":54,"小テスト後":64,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":52,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":13,"睡眠時間":7.5,"期末テスト":86,"小テスト前":60,"小テスト後":53,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":53,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":3,"睡眠時間":7.0,"期末テスト":65,"小テスト前":76,"小テスト後":78,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":54,"居住形態":"実家","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":0,"YouTube":0,"勉強時間":11,"睡眠時間":5.5,"期末テスト":55,"小テスト前":60,"小テスト後":61,"授業前の賛否":"賛成","授業後の賛否":"反対"},{"ID":55,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":8,"睡眠時間":7.5,"期末テスト":70,"小テスト前":63,"小テスト後":78,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":56,"居住形態":"実家","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":0,"勉強時間":7,"睡眠時間":7.5,"期末テスト":63,"小テスト前":73,"小テスト後":69,"授業前の賛否":"反対","授業後の賛否":"反対"},{"ID":57,"居住形態":"一人暮らし","アルバイト":"なし","サークル":"未加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":13,"睡眠時間":5.0,"期末テスト":83,"小テスト前":73,"小テスト後":57,"授業前の賛否":"賛成","授業後の賛否":"賛成"},{"ID":58,"居住形態":"実家","アルバイト":"あり","サークル":"未加入","Instagram":1,"TikTok":0,"YouTube":1,"勉強時間":9,"睡眠時間":7.5,"期末テスト":60,"小テスト前":62,"小テスト後":64,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":59,"居住形態":"一人暮らし","アルバイト":"あり","サークル":"加入","Instagram":1,"TikTok":1,"YouTube":1,"勉強時間":11,"睡眠時間":7.0,"期末テスト":64,"小テスト前":57,"小テスト後":61,"授業前の賛否":"反対","授業後の賛否":"賛成"},{"ID":60,"居住形態":"一人暮らし","アルバイト":"なし","サークル":"加入","Instagram":0,"TikTok":0,"YouTube":0,"勉強時間":2,"睡眠時間":6.0,"期末テスト":47,"小テスト前":49,"小テスト後":47,"授業前の賛否":"反対","授業後の賛否":"反対"}];
+
+/* ========== 小道具 ========== */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f1=x=>x.toFixed(1), f2=x=>x.toFixed(2), f3=x=>x.toFixed(3);
+const pct=(x,d=1)=>x.toFixed(d)+'％';
+const pT=p=>p<0.001?'p<0.001':'p='+p.toFixed(3);
+const lvl=p=>p<0.01?'1％水準で統計的に有意':p<0.05?'5％水準で統計的に有意':'5％水準では統計的に有意とはいえない';
+function xl(v){
+ if(typeof v!=='number')return v;
+ if(Number.isInteger(v))return String(v);
+ const a=Math.abs(v);
+ if(a<1e-4){let [m,e]=v.toExponential(5).split('e');m=String(parseFloat(m));const ex=parseInt(e,10);return m+'E'+(ex<0?'-':'+')+String(Math.abs(ex)).padStart(2,'0');}
+ const intLen=String(Math.trunc(a)).length;const dec=Math.max(0,9-intLen-(v<0?1:0));
+ return String(parseFloat(v.toFixed(dec)));
+}
+const xpct=v=>(v*100).toFixed(2)+'%';
+/* 用語リンク：{{用語}} または {{用語|表示}} */
+function T(s){return s.replace(/\{\{([^}|]+)(?:\|([^}]+))?\}\}/g,(m,k,d)=>`<button type="button" class="term" data-t="${k}">${d||k}</button>`)}
+
+/* ========== 見本データの列 ========== */
+const COLS=ROWS?Object.keys(ROWS[0]):[];
+const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const colOf=name=>LET[COLS.indexOf(name)];
+
+/* ========== 判定ロジック（フローチャートと共通の定義） ========== */
+const kindName={M:'複数回答（選んだ／選ばない）',N:'数値型',C2:'分類型（選択肢2つ）',C3:'分類型（選択肢3つ以上）',T:'自由記述'};
+const isCat=k=>k==='M'||k==='C2'||k==='C3';
+const dimOf=k=>k==='C3'?'3以上':'2';
+const slotLabel={v1:'1つ目の質問',v2:'2つ目の質問',y:'結果（Y）の質問',x:'説明に使う項目（X）'};
+const slotHelp={
+ v1s:'まとめたい質問を1つ決めて、その答え方を選びます。',
+ v1:'比べたい2つの質問を決めて、まず1つ目の質問の答え方を選びます。',
+ v2:'次に、2つ目の質問の答え方を選びます。',
+ y:'まず、説明したい・予測したい結果（Y）の質問の答え方を選びます。',
+ x:'次に、説明に使う項目（X）の答え方を選びます。'};
+
+const G={
+ start:{t:'q',chart:'何を\n調べたい？',title:'何を調べたいですか？',help:'アンケートの答えを使って、何を知りたいのかを選びます。',ch:[
+  {label:'1つの質問の答えをまとめたい',ex:'例：使っているSNSはどれが多い？ 睡眠時間の平均は何時間？',edge:'1つの質問',to:'s_type',set:{purpose:'single'}},
+  {label:'2つの質問の関係や違いを知りたい',ex:'例：アルバイトをしている人は、睡眠時間が短い？',edge:'2つの関係',to:'r_types',set:{purpose:'relation'}},
+  {label:'ある数値を、別の項目で説明・予測したい',ex:'例：期末テストの点数は、勉強時間でどれくらい説明できる？',edge:'数値を説明',to:'y_type',set:{purpose:'reg'}}]},
+
+ /* --- 1つの質問 --- */
+ s_type:{t:'sub',sec:'single',slots:['v1'],chart:'質問の種類を\n見分ける（図B）',decide:s=>({M:'multi',N:'num',T:'text'}[s.vars.v1.kind]||'cat'),ed:[
+  {key:'cat',edge:'分類型',to:'L_single_cat'},{key:'multi',edge:'複数回答',to:'L_single_multi'},{key:'num',edge:'数値型',to:'L_single_num'},{key:'text',edge:'自由記述',to:'L_text_s'}]},
+
+ /* --- 2つの質問の関係 --- */
+ r_types:{t:'sub',sec:'relation',slots:['v1','v2'],chart:'2つの質問の種類を\n見分ける（図B）',decide:s=>{const a=s.vars.v1.kind,b=s.vars.v2.kind;if(a==='T'||b==='T')return 'text';if(isCat(a)&&isCat(b))return 'cc';if(a==='N'&&b==='N')return 'nn';return 'cn'},ed:[
+  {key:'cc',edge:'分類×分類',to:'r_twice'},{key:'nn',edge:'数値×数値',to:'r_nn'},{key:'cn',edge:'分類×数値',to:'r_cn'},{key:'text',edge:'自由記述あり',to:'L_text_r'}]},
+ r_twice:{t:'q',sec:'relation',chart:'同じ内容を\n2回聞いた？',title:'2つの質問は、同じ内容を時期を変えて2回聞いたものですか？',help:'例：授業の前と後に、同じ「賛成・反対」をたずねた場合は「はい」。「居住形態」と「アルバイトの有無」のように、別々の内容をたずねた場合は「いいえ」です。',ch:[
+  {label:'いいえ、別々の内容の質問',ex:'例：居住形態とアルバイトの有無',edge:'別の内容',to:'r_ccgoal'},
+  {label:'はい、同じ質問を2回（前と後など）',ex:'例：授業の前と後の「賛成・反対」',edge:'同じ内容を2回',to:'r_samec'}]},
+ r_samec:{t:'q',sec:'relation',chart:'2回とも\n同じ人？',title:'2回とも、同じ人たちに聞きましたか？',help:'学籍番号などで、1回目と2回目の答えを「同じ人の答え」として結びつけられるかを確かめます。',ch:[
+  {label:'同じ人たちに聞いた（1人ひとりの1回目と2回目を結びつけられる）',ex:'例：同じクラスの全員に授業の前と後で聞き、学籍番号で照合できる',edge:'同じ人',to:'L_pairedcat'},
+  {label:'別々の人たちに聞いた',ex:'例：去年の1年生と今年の1年生に、同じ質問をした',edge:'別々の人',to:'r_size_t'},
+  {label:'一部だけ同じ人／結びつけられない',ex:'例：2回とも答えた人と1回だけの人が混ざっている。無記名なので照合できない',edge:'一部・不明',to:'L_partial_c'}]},
+ r_size_t:{t:'auto',sec:'relation',chart:'人数表の大きさ\n（自動判定）',decide:s=>dimOf(s.vars.v1.kind)==='2'?'s22':'big',ed:[
+  {key:'s22',edge:'2×2',to:'L_chi22_t'},{key:'big',edge:'2×3以上',to:'L_chi23_t'}]},
+ r_ccgoal:{t:'q',sec:'relation',chart:'偶然かどうかも\n確かめる？',title:'グループごとの割合を比べたあと、その差が偶然かどうかも確かめますか？',help:'割合を表にして比べるだけなら「クロス集計」で十分です。「この差は偶然でも起こる程度？」まで確かめるには「検定」をします。',ch:[
+  {label:'割合を比べるだけでよい',ex:'例：一人暮らしの人のアルバイト率を知りたい',edge:'割合だけ',to:'L_cross'},
+  {label:'偶然かどうかも確かめたい（検定する）',ex:'レポートや卒論で「差がある」と書きたいとき',edge:'検定もする',to:'r_size'}]},
+ r_size:{t:'auto',sec:'relation',chart:'人数表の大きさ\n（自動判定）',decide:s=>(dimOf(s.vars.v1.kind)==='2'&&dimOf(s.vars.v2.kind)==='2')?'s22':'big',ed:[
+  {key:'s22',edge:'2×2',to:'L_chi22'},{key:'big',edge:'それ以上',to:'L_chi23'}]},
+ r_nn:{t:'q',sec:'relation',chart:'同じ内容を\n2回測った？',title:'2つの数値は、同じ内容を時期を変えて2回測ったものですか？',help:'例：授業の前と後の小テストの点数は「はい」。「勉強時間」と「テストの点数」のように、別々の内容なら「いいえ」です。',ch:[
+  {label:'いいえ、別々の内容の数値',ex:'例：勉強時間とテストの点数 → 一方が大きい人ほど、もう一方も大きいかを調べます',edge:'別の内容',to:'L_corr'},
+  {label:'はい、同じ内容を2回（前と後など）',ex:'例：授業の前と後の小テスト → 平均が変わったかを調べます',edge:'同じ内容を2回',to:'r_samen'}]},
+ r_samen:{t:'q',sec:'relation',chart:'2回とも\n同じ人？',title:'2回とも、同じ人たちに測りましたか？',help:'学籍番号などで、1回目と2回目の数値を「同じ人の数値」として結びつけられるかを確かめます。',ch:[
+  {label:'同じ人たちに測った（1人ひとりの1回目と2回目を結びつけられる）',ex:'例：同じクラスの全員が授業の前と後に小テストを受け、学籍番号で照合できる',edge:'同じ人',to:'L_paired'},
+  {label:'別々の人たちに測った',ex:'例：去年の受講生と今年の受講生の点数を比べる',edge:'別々の人',to:'L_welch_t'},
+  {label:'一部だけ同じ人／結びつけられない',ex:'例：2回とも受けた人と1回だけの人が混ざっている。無記名なので照合できない',edge:'一部・不明',to:'L_partial_n'}]},
+ r_cn:{t:'q',sec:'relation',chart:'知りたいのは\nどちら？',title:'知りたいのはどちらですか？',help:'同じ2つの質問でも、目的によって分析が変わります。',ch:[
+  {label:'グループごとに、数値の平均を比べたい',ex:'例：アルバイトをしている人としていない人で、睡眠時間の平均は違う？',edge:'平均を比べる',to:'r_groups'},
+  {label:'数値から、どのグループに入るかを予測したい',ex:'例：睡眠時間から、その人がアルバイトをしているかどうかを当てたい',edge:'グループを予測',to:'L_catpred_r'}]},
+ r_groups:{t:'auto',sec:'relation',chart:'グループの数\n（自動判定）',decide:s=>catSlotRel(s)&&s.vars[catSlotRel(s)].kind==='C3'?'g3':'g2',ed:[
+  {key:'g2',edge:'2つ',to:'r_var'},{key:'g3',edge:'3つ以上',to:'L_anova3_r'}]},
+ r_var:{t:'q',sec:'relation',chart:'ばらつきが同じと\n考える理由は？',title:'2つのグループで、数値のばらつき（散らばり方）が同じだと考える理由がありますか？',help:'ばらつきとは、数値が平均のまわりにどれくらい散らばっているかです。ふつうは「ない・わからない」を選びます。',ch:[
+  {label:'ない・わからない',ex:'ほとんどの場合はこちら',edge:'ない・不明',to:'L_welch'},
+  {label:'ある（先生の指示があるなど）',ex:'先生から「等分散を仮定して計算する」と指示された場合など',edge:'ある',to:'L_equal'}]},
+
+ /* --- 数値を説明・予測 --- */
+ y_type:{t:'sub',sec:'reg',slots:['y'],chart:'結果（Y）の種類を\n見分ける（図B）',decide:s=>{const k=s.vars.y.kind;return k==='N'?'num':k==='T'?'text':'cat'},ed:[
+  {key:'num',edge:'数値型',to:'y_xcount'},{key:'cat',edge:'分類型・複数',to:'yc_xcount'},{key:'text',edge:'自由記述',to:'L_text_y'}]},
+ y_xcount:{t:'q',sec:'reg',chart:'Xは\nいくつ？',title:'説明に使う項目（X）はいくつですか？',help:'知りたい結果を「Y」、それを説明するために使う項目を「X」と呼びます。例：Y＝期末テストの点数、X＝勉強時間。',ch:[
+  {label:'1つ',ex:'例：勉強時間だけで説明する',edge:'1つ',to:'x_type'},
+  {label:'2つ以上',ex:'例：勉強時間と睡眠時間で説明する',edge:'2つ以上',to:'y_hascat'}]},
+ x_type:{t:'sub',sec:'reg',slots:['x'],chart:'Xの種類を\n見分ける（図B）',decide:s=>{const k=s.vars.x.kind;return k==='N'?'num':k==='T'?'text':k==='C3'?'c3':'c2'},ed:[
+  {key:'num',edge:'数値型',to:'L_simple'},{key:'c2',edge:'2グループ',to:'L_dsimple'},{key:'c3',edge:'3グループ以上',to:'L_anova3_y'},{key:'text',edge:'自由記述',to:'L_text_x'}]},
+ y_hascat:{t:'q',sec:'reg',chart:'Xに入っている\n項目の種類は？',title:'Xの中に、どんな種類の項目が入っていますか？',help:'Xを1つずつ思い浮かべて、当てはまるものを上から順に確かめます。分類型とは、答えがグループ名になる項目です（居住形態、学部、アルバイトの有無、複数回答の選択肢など）。',ch:[
+  {label:'自由記述（文章の答え）が1つでも入っている',ex:'例：勉強時間と「大学生活で困っていること」',edge:'自由記述あり',to:'L_text_xm'},
+  {label:'分類型が入っている（自由記述はない）',ex:'例：勉強時間と居住形態',edge:'分類型あり',to:'L_dummy'},
+  {label:'すべて数値型',ex:'例：勉強時間と睡眠時間（5段階以上の評価も、この授業では数値型）',edge:'すべて数値型',to:'L_multi'}]},
+ yc_xcount:{t:'q',sec:'reg',chart:'Xは\nいくつ？',title:'説明に使う項目（X）はいくつですか？',help:'結果（Y）が分類型なので、Xの数によって進み方が変わります。',ch:[
+  {label:'1つ',ex:'例：睡眠時間だけ',edge:'1つ',to:'xc_type'},
+  {label:'2つ以上',ex:'例：睡眠時間と居住形態',edge:'2つ以上',to:'L_catYmulti'}]},
+ xc_type:{t:'sub',sec:'reg',slots:['x'],chart:'Xの種類を\n見分ける（図B）',decide:s=>{const k=s.vars.x.kind;return k==='N'?'num':k==='T'?'text':'cat'},ed:[
+  {key:'cat',edge:'分類型・複数',to:'yc_size'},{key:'num',edge:'数値型',to:'L_catpred_y'},{key:'text',edge:'自由記述',to:'L_text_x2'}]},
+ yc_size:{t:'auto',sec:'reg',chart:'人数表の大きさ\n（自動判定）',decide:s=>(dimOf(s.vars.y.kind)==='2'&&dimOf(s.vars.x.kind)==='2')?'s22':'big',ed:[
+  {key:'s22',edge:'2×2',to:'L_chi22_y'},{key:'big',edge:'それ以上',to:'L_chi23_y'}]},
+
+ /* --- 図B：質問の種類の見分け方 --- */
+ B_how:{t:'q',sub:true,chart:'答え方は？',title:s=>slotTitle(s)+'の答え方はどれですか？',help:s=>slotHelp[s.sub.slotKey],ch:[
+  {label:'いくつでも選べる（複数回答）',ex:'例：使っているSNSをすべて選ぶ',edge:'複数回答',to:'B_M'},
+  {label:'実際の数値を書く',ex:'例：睡眠時間 6.5時間、テスト 72点、アルバイト代 45000円',edge:'数値を書く',to:'B_N'},
+  {label:'段階で評価する',ex:'例：とても満足／満足／ふつう／不満／とても不満',edge:'段階で評価',to:'B_scale'},
+  {label:'選択肢から1つ選ぶ',ex:'例：居住形態、学部、賛成・反対。「1時間未満／1〜3時間／3時間以上」のような数値の範囲から選ぶ質問もここ',edge:'1つ選ぶ',to:'B_count'},
+  {label:'文章で自由に書く',ex:'例：大学生活で困っていること',edge:'自由記述',to:'B_T'}]},
+ B_scale:{t:'q',sub:true,chart:'何段階？',title:'何段階で答える質問ですか？',help:'この授業では、5段階以上の評価を「とても満足＝5点、満足＝4点、ふつう＝3点…」のように点数にして、数値として扱う方針です。先生から別の指示があるときは、そちらに従ってください。',ch:[
+  {label:'5段階以上',ex:'例：1〜5点、1〜7点',edge:'5段階以上',to:'B_N2'},
+  {label:'3段階・4段階',ex:'例：そう思う／どちらでもない／そう思わない',edge:'3〜4段階',to:'B_C3s'}]},
+ B_count:{t:'q',sub:true,chart:'選択肢の\n数は？',title:'選択肢はいくつありますか？',help:'「無回答」は数えません。数値の範囲から選ぶ質問は、範囲の数を数えます。',ch:[
+  {label:'2つ',ex:'例：あり・なし、賛成・反対',edge:'2つ',to:'B_C2'},
+  {label:'3つ以上',ex:'例：実家・一人暮らし・寮',edge:'3つ以上',to:'B_C3'}]},
+ B_M:{t:'out',kind:'M',chart:'複数回答'},
+ B_N:{t:'out',kind:'N',chart:'数値型'},
+ B_N2:{t:'out',kind:'N',likert:true,chart:'数値型（段階を点数に）'},
+ B_C3s:{t:'out',kind:'C3',likert:true,chart:'分類型（3つ以上）'},
+ B_C2:{t:'out',kind:'C2',chart:'分類型（2つ）'},
+ B_C3:{t:'out',kind:'C3',chart:'分類型（3つ以上）'},
+ B_T:{t:'out',kind:'T',chart:'自由記述'},
+
+ /* --- 到達先（分析方法） --- */
+ L_single_cat:{t:'leaf',m:'single_cat'},L_single_multi:{t:'leaf',m:'single_multi'},L_single_num:{t:'leaf',m:'single_num'},L_text_s:{t:'leaf',m:'text'},
+ L_text_r:{t:'leaf',m:'text'},L_pairedcat:{t:'leaf',m:'pairedcat'},L_cross:{t:'leaf',m:'cross'},L_chi22:{t:'leaf',m:'chi22'},L_chi23:{t:'leaf',m:'chi23'},
+ L_corr:{t:'leaf',m:'corr'},L_paired:{t:'leaf',m:'paired'},L_catpred_r:{t:'leaf',m:'catpred'},L_anova3_r:{t:'leaf',m:'anova3'},L_welch:{t:'leaf',m:'welch'},L_equal:{t:'leaf',m:'equal'},
+ L_text_y:{t:'leaf',m:'text'},L_simple:{t:'leaf',m:'simple'},L_dsimple:{t:'leaf',m:'dsimple'},L_anova3_y:{t:'leaf',m:'anova3'},L_text_x:{t:'leaf',m:'text'},
+ L_dummy:{t:'leaf',m:'dummy'},L_multi:{t:'leaf',m:'multi'},L_catYmulti:{t:'leaf',m:'catYmulti'},L_chi22_y:{t:'leaf',m:'chi22'},L_chi23_y:{t:'leaf',m:'chi23'},L_catpred_y:{t:'leaf',m:'catpred'},L_text_x2:{t:'leaf',m:'text'},
+ L_chi22_t:{t:'leaf',m:'chi22'},L_chi23_t:{t:'leaf',m:'chi23'},L_partial_c:{t:'leaf',m:'partial'},L_welch_t:{t:'leaf',m:'welch'},L_partial_n:{t:'leaf',m:'partial'},L_text_xm:{t:'leaf',m:'text'}
+};
+function catSlotRel(s){const a=s.vars.v1,b=s.vars.v2;if(!a||!b)return null;return isCat(a.kind)?'v1':isCat(b.kind)?'v2':null}
+function numSlotRel(s){const a=s.vars.v1,b=s.vars.v2;if(!a||!b)return null;return a.kind==='N'?'v1':b.kind==='N'?'v2':null}
+function slotTitle(s){const k=s.sub.slotKey==='v1s'?'v1':s.sub.slotKey;const nm=s.names[k];return nm?'「'+nm+'」':slotLabel[k]}
+function kids(id){const n=G[id];if(n.t==='q')return n.ch.map(c=>({to:c.to,edge:c.edge}));if(n.t==='sub'||n.t==='auto')return n.ed.map(e=>({to:e.to,edge:e.edge,key:e.key}));return []}
+
+/* ========== 状態とウィザード ========== */
+const fresh=()=>({node:'start',purpose:'',vars:{},names:{},sub:null,trail:[],btrail:[],done:false});
+let state=fresh(),history=[];
+function settle(){
+ for(let guard=0;guard<50;guard++){
+  const n=G[state.node];
+  if(n.t==='sub'){
+   if(!state.sub||state.sub.main!==state.node){state.sub={main:state.node,i:0,slot:n.slots[0],slotKey:(state.purpose==='single'?'v1s':n.slots[0])};state.btrail=[];state.node='B_how';continue}
+  }
+  if(n.t==='out'){
+   const sb=state.sub;state.vars[sb.slot]={kind:n.kind,likert:!!n.likert};
+   sb.i++;const m=G[sb.main];
+   if(sb.i<m.slots.length){sb.slot=m.slots[sb.i];sb.slotKey=m.slots[sb.i];state.btrail=[];state.node='B_how';continue}
+   const key=m.decide(state);const e=m.ed.find(x=>x.key===key);
+   if(!e)throw new Error('判定先なし '+sb.main+' '+key);
+   state.trail.push({from:sb.main,to:e.to,edge:e.edge,auto:true});state.sub=null;state.node=e.to;continue;
+  }
+  if(n.t==='auto'){
+   const key=n.decide(state);const e=n.ed.find(x=>x.key===key);
+   if(!e)throw new Error('判定先なし '+state.node+' '+key);
+   state.trail.push({from:state.node,to:e.to,edge:e.edge,auto:true});state.node=e.to;continue;
+  }
+  break;
+ }
+}
+function choose(i,nameVal){
+ const n=G[state.node];const c=n.ch[i];if(!c)return;
+ history.push(JSON.stringify(state));
+ if(n.sub){const k=state.sub.slot;if(state.node==='B_how'){const v=(nameVal||'').trim().slice(0,30);if(v)state.names[k]=v;else delete state.names[k]}
+  state.btrail.push({from:state.node,to:c.to,edge:c.edge});
+  state.trail.push({from:state.node,to:c.to,edge:c.edge,inB:true,slot:k,title:resolve(n.title),label:c.label});
+ }else{
+  if(c.set)Object.assign(state,c.set);
+  state.trail.push({from:state.node,to:c.to,edge:c.edge,title:resolve(n.title),label:c.label});
+ }
+ state.node=c.to;settle();
+}
+const resolve=v=>typeof v==='function'?v(state):v;
+function mainCurrent(){return state.sub?state.sub.main:state.node}
+
+/* ========== 名前の取り出し ========== */
+function U(st){
+ const nm=(k,d)=>st&&st.names&&st.names[k]?'「'+esc(st.names[k])+'」':d;
+ const u={v1:nm('v1','1つ目の質問'),v2:nm('v2','2つ目の質問'),y:nm('y','結果（Y）'),x:nm('x','説明に使う項目（X）')};
+ if(st&&st.purpose==='relation'){const c=catSlotRel(st),n=numSlotRel(st);u.grp=c?u[c]:'グループを表す質問';u.num=n?u[n]:'数値の質問'}
+ else if(st&&st.purpose==='reg'){u.grp=u.x;u.num=u.y}
+ else{u.grp='グループを表す質問';u.num='数値の質問'}
+ if(st&&st.purpose==='reg'){u.v1=u.y;u.v2=u.x}
+ u.st=st;u.gen=!st||Object.keys(st.names||{}).length===0;return u;
+}
+
+/* ========== Excel風の表 ========== */
+function grid(o){
+ const cols=o.cols,r0=o.r0||1,mk=o.mk||{};
+ let h='<div class="xlwrap"><table class="xl"><tr><th></th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+ o.rows.forEach((row,i)=>{const rn=(o.rn?o.rn[i]:r0+i);h+=`<tr><th>${rn}</th>`;
+  cols.forEach((c,j)=>{let v=row[j];if(v===undefined||v===null)v='';const addr=c+rn;const m=mk[addr];
+   const isNum=typeof v==='number'||/^-?[\d.]+(E[-+]\d+)?%?$/.test(String(v));
+   let cls=(isNum?'n':'')+(o.hd&&o.hd(i,j,v)?' h':'');let badge='';
+   if(m){cls+=' '+(m[1]==='y'?'mk2':'mk');badge=`<span class="bd${m[1]==='y'?' y':''}">${m[0]}</span>`}
+   h+=`<td class="${cls}">${badge}${typeof v==='number'?xl(v):esc(v)}</td>`});
+  h+='</tr>'});
+ return h+'</table></div>';
+}
+function regGrid(R,mk){
+ const rows=[['概要'],[],['回帰統計'],['重相関 R',R.multR],['重決定 R2',R.R2],['補正 R2',R.adjR2],['標準誤差',R.se],['観測数',R.n],[],['分散分析表'],
+  ['','自由度','変動','分散','観測された分散比','有意 F'],['回帰',R.df_reg,R.ss_reg,R.ms_reg,R.F,R.pF],['残差',R.df_res,R.ss_res,R.ms_res],['合計',R.df_reg+R.df_res,R.ss_reg+R.ss_res],[],
+  ['','係数','標準誤差','t','P-値','下限 95%','上限 95%']];
+ R.names.forEach((nm,i)=>rows.push([nm,R.coef[i],R.coef_se[i],R.t[i],R.p[i],R.lo[i],R.hi[i]]));
+ return grid({cols:['A','B','C','D','E','F','G'],rows,mk,hd:(i,j,v)=>j===0&&v!==''||i===10||i===15})+'<p class="cap">「データ分析」→「回帰分析」で「新規ワークシート」を選んだときの出力（見本データ）。右側にも同じ形の列が続きますが、見なくてかまいません。表示される桁数はセルの幅で変わります。</p>';
+}
+
+/* ========== 判断基準の囲み ========== */
+const GUIDE={
+ p:()=>T(`<div class="guide"><b>p値の読み方</b><p>{{p値}}は、<strong>本当は差や関係がないと仮定したとき、今回と同じくらい、またはそれ以上に極端な結果が偶然に出る確率</strong>です。</p><p>たとえば、ふつうのコインを10回投げて、<strong>表が</strong>9回以上出る確率は約1.1％です（表に偏る向きだけを数える＝{{片側検定|片側}}）。<strong>表か裏のどちらかに</strong>9回以上偏る確率は約2.1％です（両方の向きを数える＝{{両側検定|両側}}）。どちらにしても、ふつうのコインではめったに起きない結果なので、「このコイン、偏っているのでは？」と考えます。このナビのt検定（T.TESTの3つ目の数を2）は両側です。</p><p>p値が小さいほど、「差や関係がないとしたら、めったに起きない結果」だといえます。</p><table class="rule"><tr><th>p値</th><th>判断</th></tr><tr><td>p＜0.01</td><td>1％水準で統計的に有意</td></tr><tr><td>0.01≦p＜0.05</td><td>5％水準で統計的に有意</td></tr><tr><td>p≧0.05</td><td>5％水準では統計的に有意とはいえない</td></tr></table><p>「{{有意|統計的に有意}}」とは、「差や関係がないと仮定すると、今回の結果はめったに起きない（p値が基準より小さい）」という意味です。</p></div>`),
+ r:()=>T(`<div class="guide"><b>相関係数 r の読み方（この授業の目安）</b><p>r は−1から＋1までの数です。<strong>＋かーか</strong>で関係の向き、<strong>0からどれだけ離れているか（絶対値）</strong>で関係の強さを表します。</p><p>＋：一方が大きい人ほど、もう一方も大きい。−：一方が大きい人ほど、もう一方は小さい。</p><table class="rule"><tr><th>rの絶対値</th><th>読み方</th></tr><tr><td>0.2未満</td><td>ほとんど相関がない、または非常に弱い</td></tr><tr><td>0.2以上0.4未満</td><td>弱い相関</td></tr><tr><td>0.4以上0.7未満</td><td>中程度の相関</td></tr><tr><td>0.7以上</td><td>強い相関</td></tr></table></div>`),
+ R2:()=>T(`<div class="guide"><b>{{決定係数|決定係数 R²}} の読み方（この授業の目安）</b><p>R²は0から1までの数で、「結果（Y）の人による違いのうち、Xで説明できる割合」です。0.40なら40％を説明できています。</p><table class="rule"><tr><th>R²</th><th>読み方</th></tr><tr><td>0.2未満</td><td>説明できる部分は小さい</td></tr><tr><td>0.2以上0.5未満</td><td>ある程度説明できている</td></tr><tr><td>0.5以上</td><td>比較的多くの部分を説明できている</td></tr></table><p>R²は合格・不合格の基準ではありません。人の行動や意見はたくさんの要因で決まるので、アンケート調査ではR²が小さくなることがよくあります。R²が小さくても、係数から「関係の向きと大きさ」を読み取ることには意味があります。ただし、R²が小さいときは、Xだけで1人ひとりのYを言い当てるのは難しい、と考えます。R²が大きくても、XがYの原因だとは限りません。</p><p>Xを増やすとR²は必ず増える（減らない）ので、Xの数がちがう式どうしを比べるときは{{補正R²}}を使います。</p></div>`),
+ F:()=>T(`<div class="guide"><b>{{有意F}}と係数の読み方</b><p><strong>有意 F</strong>は、「Xはどれも Y と関係がない」と仮定したとき、今回と同じくらい、またはそれ以上にYを説明できる結果が出る確率（p値）です。0.05未満なら、式全体として有意です。</p><p><strong>{{係数}}</strong>は「Xが1増えると、Yがどれだけ増えるか（−なら減るか）」です。その行の<strong>P-値</strong>が0.05未満なら、その項目の関係は5％水準で有意です。単位がちがう項目どうし（時間と点数など）の係数の大きさを、そのまま比べてはいけません。</p></div>`),
+ E:()=>T(`<div class="guide"><b>「6.14E-08」のような表示</b><p>Excelは、とても小さい数を{{E表記}}で表示します。<code>6.14E-08</code>は「6.14の小数点を左へ8けた動かした数」＝0.0000000614のことです。0.001よりずっと小さいので、レポートでは「p&lt;0.001」と書きます。</p></div>`),
+ E5:()=>T(`<div class="guide"><b>{{期待度数}}の条件</b><p>期待度数の表の数が小さすぎると、p値が正しく出ません。目安は次のとおりです。</p><table class="rule"><tr><td>2×2の表</td><td>4つのマスがすべて5以上</td></tr><tr><td>それより大きい表</td><td>1未満のマスがなく、5未満のマスが全体の20％以下</td></tr></table><p><b>満たさないときの考え方</b></p><ul><li>人数と割合の表（クロス集計）を示し、「人数が少ないため検定は行わなかった」と書く。これだけでもレポートになります。</li><li>意味が近く、まとめても問いが変わらない選択肢（例：「とても満足」と「満足」）を、<strong>分析の前に決めた方針で</strong>まとめるのはかまいません。</li><li>検定をするためだけに、意味の異なる選択肢（例：「寮」と「一人暮らし」、「経済学部」と「文学部」）をまとめてはいけません。問いそのものが変わってしまいます。</li><li>どうしても検定が必要なときは、先生に相談してください。</li></ul>${E5ex()}</div>`)
+};
+
+function E5ex(){
+ const O=[[5,1],[4,2],[2,2],[1,3]],rl=['経済','社会','法','文'],cl=['賛成','反対'];
+ const R=O.map(r=>r[0]+r[1]),Cc=[0,1].map(j=>O.reduce((a,r)=>a+r[j],0)),N=R.reduce((a,b)=>a+b,0);
+ const E=O.map((r,i)=>r.map((v,j)=>R[i]*Cc[j]/N));const flat=E.flat();const small=flat.filter(v=>v<5).length,tiny=flat.filter(v=>v<1).length;
+ const rows=[['行ラベル',...cl,'総計'],...O.map((r,i)=>[rl[i],...r,R[i]]),['総計',...Cc,N],[],['期待度数',...cl],...E.map((e,i)=>[rl[i],...e])];
+ const mk={};E.forEach((e,i)=>e.forEach((v,j)=>{if(v<5)mk['BC'[j]+(9+i)]=['!','y']}));
+ return `<p><b>条件を満たさない例</b>（学部×賛否、${N}人）</p>`+grid({cols:['A','B','C','D'],rows,mk,hd:(i,j,v)=>(j===0&&v!=='')||i===0||i===7})+`<p class="cap">期待度数が5未満のマスは${flat.length}マス中${small}マス（${Math.round(small/flat.length*100)}％）、1未満は${tiny}マス。20％を超えるので、この表ではカイ二乗検定の結果を信用できません。人数と割合を示すにとどめます。</p>`;
+}
+
+/* ========== 分析方法ごとの内容 ========== */
+const PART=[[1001,72,75],[1002,65,null],[1003,null,70],[1004,80,84],[1005,58,63],[1006,90,88],[1007,61,null],[1008,null,66]];
+const PARTS=(()=>{const b=PART.filter(r=>r[1]!==null&&r[2]!==null);const m=a=>a.reduce((x,y)=>x+y,0)/a.length;return {n:b.length,m1:m(b.map(r=>r[1])),m2:m(b.map(r=>r[2])),n1:PART.filter(r=>r[1]!==null).length,n2:PART.filter(r=>r[2]!==null).length}})();
+const W=S?S.welch:null,P=S?S.paired:null,C=S?S.corr:null,X22=S?S.chi22:null,X23=S?S.chi23:null,PC=S?S.pairedcat:null,SR=S?S.simple:null,MR=S?S.multi:null,DR=S?S.dummy:null,DS=S?S.dsimple:null,A3=S?S.anova3:null;
+const toolpak=()=>T(`（初めて使うときだけ）「データ分析」を使えるようにする：<b>ファイル → オプション → アドイン</b> → 下の「管理」で「Excel アドイン」を選んで<b>設定</b> → 「分析ツール」にチェック → OK。Macは<b>ツール → Excel アドイン</b> → 「分析ツール」にチェック。`);
+const regRun=(y,x)=>T(`<b>データ</b>タブ → 右端の<b>データ分析</b> → 「回帰分析」→ OK。「入力 Y 範囲」に${y}、「入力 X 範囲」に${x}を、どちらも<b>見出しの行ごと</b>選んで入れる。`);
+const regOpt=()=>`「ラベル」にチェックを入れ、出力オプションで「新規ワークシート」を選んで OK。新しいシートに結果の表が出る。`;
+const missStep=(what)=>T(`<b>無回答（空欄）の行を除く</b>：回帰分析は、使う列に1つでも空欄があると計算できません。また、無回答を0として計算してはいけません。シート見出しを右クリック →「移動またはコピー」→「コピーを作成する」にチェック → OK で、データのコピーを作る。コピーのシートで、${what}のどれかが空欄の行を削除する（<b>データ</b> → <b>フィルター</b> → 列の▼で「(空白セル)」だけにチェック → 表示された行を選んで右クリック →「行の削除」→ ▼で「すべて選択」に戻す。これを、ここに挙げた<b>列ごとにくり返し</b>、最後にもう一度<b>フィルター</b>を押して解除）。行を削除したら、次の手順の範囲の最後の行番号も、残った行に合わせる（見本データには無回答がないので61行目まで）。`);
+
+const M={
+ single_cat:{title:'単純集計（人数と割合）',look:'答えごとの人数と割合（％）',rule:'いちばん多い答えと、その割合をつかむ',
+  what:u=>`${u.v1}で、どの答えが何人・何％いるかを数えます。アンケート分析の第一歩です。全体の姿がひと目でわかり、次にどんな比較をすればよいかも見えてきます。`,
+  steps:u=>[`データを「1行に1人、1列に1つの質問」の形に並べる。1行目は見出しにする（見本データの形）。`,
+   `表の中のどこかを1回クリック → <b>挿入</b>タブ → <b>ピボットテーブル</b> → そのまま OK。新しいシートに空の{{ピボットテーブル}}ができる。`,
+   `右側の「ピボットテーブルのフィールド」で、${u.v1}（見本：居住形態）を「<b>行</b>」の欄へドラッグする。`,
+   `同じ項目をもう一度「<b>値</b>」の欄へドラッグする。文字の項目は自動で「個数」（＝人数）になる。`,
+   `割合も出す：同じ項目をもう一度「値」へ入れる → 「値」の欄に増えた項目をクリック → <b>値フィールドの設定</b> → 「<b>計算の種類</b>」タブ → 「総計に対する比率」→ OK。`,
+   `無回答があるときは、表の「行ラベル」の▼をクリックし、「(空白)」のチェックを外す。`,
+   `グラフにする：表の中をクリック → <b>挿入</b>タブ → 縦棒グラフ。多い順に並べると読みやすい。`],
+  sample:()=>{const s=S.single_cat;return grid({cols:['A','B','C'],r0:3,rows:[['行ラベル','個数 / 居住形態','個数 / 居住形態2'],...s.labels.map((l,i)=>[l,s.counts[i],xpct(s.pct[i]/100)]),['総計',S.n,'100.00%']],mk:{B4:['①'],B5:['①'],B6:['①'],C4:['②','y'],C5:['②','y'],C6:['②','y']},hd:(i,j)=>i===0||i===4})+'<p class="cap">ピボットテーブルの完成形（見本データ）。C列は「計算の種類」を「総計に対する比率」にした列。行の並び順は、データによって変わることがあります。</p>'},
+  read:()=>{const s=S.single_cat;return [['① ② どこを見るか','①B列の人数（B4〜B6）と、②C列の割合（C4〜C6）。'],['② 数字の意味',`実家は${s.counts[0]}人で全体の${pct(s.pct[0])}。一人暮らしは${s.counts[1]}人（${pct(s.pct[1])}）、寮は${s.counts[2]}人（${pct(s.pct[2])}）。`],['③ わかったこと','回答者の半分が実家から通っている。一人暮らしは3割、寮は2割。']]},
+  guide:()=>T(`<div class="guide"><b>割合の出し方と書き方</b><p>割合＝その答えの人数÷答えた人数×100。無回答の人は分母に入れません。レポートでは、割合と人数（n）を両方書きます。</p></div>`),
+  report:()=>{const s=S.single_cat;return `居住形態をたずねたところ、実家が${s.counts[0]}人（${pct(s.pct[0])}）で最も多く、一人暮らしが${s.counts[1]}人（${pct(s.pct[1])}）、寮が${s.counts[2]}人（${pct(s.pct[2])}）であった（n=${S.n}）。`},
+  adv:()=>`<p>選択肢が多いときは、人数の少ない答えを「その他」にまとめると読みやすくなります。</p><p>関数でも数えられます：<code>=COUNTIF(B2:B61,"実家")</code>。割合は <code>=COUNTIF(B2:B61,"実家")/COUNTA(B2:B61)</code>（COUNTAは空欄を数えないので、無回答は分母から自然に外れます）。</p>`},
+
+ single_multi:{title:'単純集計（複数回答）',look:'選択肢ごとの「選んだ人の割合」',rule:'割合の高い順に並べる（合計は100％を超えてよい）',
+  what:u=>`いくつでも選べる質問（{{複数回答}}）では、選択肢ごとに「選んだ人の割合」を出します。1人がいくつも選ぶので、合計は100％を超えます。どの選択肢がよく選ばれているかがひと目でわかります。`,
+  steps:u=>[`データの準備：選択肢ごとに列を作り、<b>選んだ＝1、選ばない＝0</b>を入れる（見本：E列 Instagram、F列 TikTok、G列 YouTube）。この質問そのものに答えていない人は<b>空欄のまま</b>にする（0にしない）。`,
+   `空いているセル（見本ではQ列から）に、選んだ人数を出す：<code>=SUM(E2:E61)</code>`,
+   `割合を出す：<code>=AVERAGE(E2:E61)</code> → <b>ホーム</b>タブの「%」ボタンでパーセント表示にする。AVERAGEは空欄を数えないので、無回答の人は自動で分母から外れる。`,
+   `式を右へコピーして、ほかの選択肢も出す。`,
+   `グラフにする：割合の行を選んで <b>挿入</b> → 横棒グラフ。多い順に並べ替えると読みやすい。`],
+  sample:()=>{const s=S.single_multi;return grid({cols:['Q','R','S','T'],rows:[['',...s.labels],['選んだ人数',...s.counts],['割合',...s.pct.map(v=>xpct(v/100))],['答えた人数',S.n,S.n,S.n]],mk:{R3:['①']},hd:(i,j)=>i===0||j===0})+'<p class="formulas">入れた式（R列）：R2 <code>=SUM(E2:E61)</code>　R3 <code>=AVERAGE(E2:E61)</code>　R4 <code>=COUNT(E2:E61)</code></p>'},
+  read:()=>{const s=S.single_multi;const tot=s.pct.reduce((a,b)=>a+b,0);return [['① どこを見るか','3行目の割合（R3〜T3）。'],['② 数字の意味',`Instagramを使っている人は${pct(s.pct[0])}、TikTokは${pct(s.pct[1])}、YouTubeは${pct(s.pct[2])}。合計は${pct(tot)}で、1人平均${(tot/100).toFixed(2)}個を選んでいる。`],['③ わかったこと','最もよく使われているSNSはInstagramで、5人に4人が使っている。']]},
+  guide:()=>T(`<div class="guide"><b>複数回答の割合</b><p>分母は「選択肢を選んだ数の合計」ではなく、「この質問に答えた人数」です。合計が100％を超えるのは正しい結果です。</p></div>`),
+  report:()=>{const s=S.single_multi;return `使っているSNSをすべて選んでもらったところ（複数回答、n=${S.n}）、Instagramが${pct(s.pct[0])}で最も多く、TikTok（${pct(s.pct[1])}）、YouTube（${pct(s.pct[2])}）が続いた。`},
+  adv:()=>`<p>1人あたり何個選んだかは、選択肢の列を横に合計した列（<code>=SUM(E2:G2)</code>）を作り、その平均を出すとわかります。</p><p>2つの選択肢の割合の差（InstagramとTikTokなど）を検定することは、同じ人が両方に答えているため、このナビの範囲外です。</p>`},
+
+ single_num:{title:'単純集計（平均・中央値・ばらつき）',look:'平均、中央値、標準偏差',rule:'平均と中央値が近いかを確かめ、ばらつきも添える',
+  what:u=>`${u.v1}の数値を、{{平均}}・{{中央値}}・{{標準偏差}}の3つの数にまとめます。「ふつうはどれくらいか」と「人によってどれくらい違うか」がわかります。`,
+  steps:u=>[`${u.v1}の列を確かめる（見本：I列 睡眠時間）。数字以外（「6時間」のような文字）が入っていないかも確認する。`,
+   `空いているセル（見本ではQ列から）に、人数 <code>=COUNT(I2:I61)</code> と平均 <code>=AVERAGE(I2:I61)</code> を入れる。`,
+   `中央値 <code>=MEDIAN(I2:I61)</code>、標準偏差 <code>=STDEV.S(I2:I61)</code> を入れる。`,
+   `いちばん小さい値 <code>=MIN(I2:I61)</code>、いちばん大きい値 <code>=MAX(I2:I61)</code> も出す。`,
+   `グラフにする：列を選んで <b>挿入</b> → 「統計グラフの挿入」→ <b>ヒストグラム</b>。どのあたりに人が多いかが見える。`],
+  sample:()=>{const s=S.single_num;return grid({cols:['Q','R','S'],rows:[['項目','結果','入れた式'],['人数',s.n,'=COUNT(I2:I61)'],['平均',s.mean,'=AVERAGE(I2:I61)'],['中央値',s.median,'=MEDIAN(I2:I61)'],['標準偏差',s.sd,'=STDEV.S(I2:I61)'],['最小',s.min,'=MIN(I2:I61)'],['最大',s.max,'=MAX(I2:I61)']],mk:{R3:['①'],R4:['②'],R5:['③']},hd:(i,j)=>i===0||j===0})+'<p class="cap">見本データの睡眠時間（1日の平均、時間）。S列は説明のために式を文字で書いたもの。</p>'},
+  read:()=>{const s=S.single_num;const mins=Math.round((s.mean-Math.floor(s.mean))*60);return [['① どこを見るか','R3（平均）、R4（中央値）、R5（標準偏差）。'],['② 数字の意味',`平均は${f2(s.mean)}時間（約${Math.floor(s.mean)}時間${mins}分）。中央値${s.median}時間は、小さい順に並べた真ん中の人の値。標準偏差${f2(s.sd)}は、多くの人（目安として約3分の2）が「平均±${f1(s.sd)}時間」くらいの範囲にいることを表す。`],['③ わかったこと','学生の睡眠時間は1日約6.4時間。平均と中央値がほぼ同じなので、極端に長い人・短い人に平均が引っ張られてはいない。']]},
+  guide:()=>T(`<div class="guide"><b>平均と中央値のどちらを使う？</b><p>平均と中央値が大きくちがうときは、ごく一部の極端な値（{{外れ値}}）が平均を引っ張っています。そのときは中央値を中心に書きます（例：アルバイト代、通学時間）。</p></div>`),
+  report:()=>{const s=S.single_num;return `1日の平均睡眠時間は${f2(s.mean)}時間（中央値${s.median}時間、標準偏差${f2(s.sd)}時間、n=${s.n}）であった。`},
+  adv:()=>`<p>5段階以上の評価を点数にした質問でも、同じ方法で平均を出せます。ただし「平均3.6点」が何を意味するかは、選択肢の言葉（4＝満足など）に戻して説明します。</p>`},
+
+ text:{sampleNote:'架空の自由記述8件の例です（60人の見本データとは別）。',title:'内容分析（自由記述のまとめ）',look:'テーマごとの件数と割合',rule:'多いテーマと代表的な回答をつかむ',
+  what:u=>`文章の答えは、そのままでは数えられません。内容を読んで「テーマ」の印をつける（{{コード化}}）と、どのテーマが多いかを数えられます。印をつけた列は分類型になるので、ほかの質問とクロス集計もできます。`,
+  steps:u=>[`回答をすべて読み、よく出てくるテーマを4〜6個決める（例：授業、お金、通学、人間関係、その他）。`,
+   `回答の右に、テーマごとの列を作る。当てはまれば1、当てはまらなければ0を入れる。1つの回答に2つのテーマがあれば、両方に1を入れてよい。`,
+   `テーマごとの件数：<code>=SUM(B2:B9)</code>、割合：<code>=AVERAGE(B2:B9)</code>（パーセント表示にする）。式を右へコピーする。`,
+   `件数の多い順に並べ、横棒グラフにする。`,
+   `代表的な回答を1〜2個選んで、レポートで引用する（名前など、個人が特定される部分は消す）。`,
+   `さらに分析するとき：テーマの列（1／0）を分類型の質問として、このナビの「2つの質問の関係」でほかの質問と組み合わせる。`,
+   T(`回帰分析のXに使うとき（数値化）：テーマの1／0の列を{{ダミー変数}}としてXに入れる（「ダミー変数を使った重回帰分析」の手順）。1つの回答に複数のテーマがあってよく、複数回答の選択肢と同じように扱う。どのテーマにも当てはまらない回答は全部0、自由記述に何も書いていない人は空欄にして、分析から除く。`)],
+  sample:()=>{const R=[['回答','授業','お金','通学','人間関係'],['課題が多くて寝る時間がない',1,0,0,0],['通学に片道1時間半かかる',0,0,1,0],['教科書代が高い',0,1,0,0],['サークルで友だちができない',0,0,0,1],['アルバイトと授業の両立が大変',1,1,0,0],['電車が混んでいて疲れる',0,0,1,0],['グループワークで話すのが苦手',1,0,0,1],['一人暮らしで食費がかかる',0,1,0,0],['件数',3,3,2,2],['割合','37.50%','37.50%','25.00%','25.00%']];
+   return grid({cols:['A','B','C','D','E'],rows:R,mk:{B10:['①'],B11:['②']},hd:(i,j)=>i===0||i>=9})+'<p class="cap">「大学生活で困っていること」の自由記述8件に印をつけた例（架空）。10行目は <code>=SUM(B2:B9)</code>、11行目は <code>=AVERAGE(B2:B9)</code>。</p>'},
+  read:()=>[['① どこを見るか','10行目の件数と、11行目の割合。'],['② 数字の意味','「授業」と「お金」が3件ずつ（37.5％）、「通学」と「人間関係」が2件ずつ（25.0％）。1つの回答に2つのテーマがあるので、合計は100％を超える。'],['③ わかったこと','困りごとは、授業に関するものとお金に関するものが多い。']],
+  guide:()=>T(`<div class="guide"><b>印のつけ方の決まり</b><p>テーマの意味（どんな回答に1をつけるか）を最初に書き出し、途中で変えないこと。2人で別々に印をつけて、結果が合うか比べると確実です。</p></div>`),
+  report:()=>`「大学生活で困っていること」の自由記述（8件）を内容ごとに分類したところ、授業に関するもの（3件、37.5％）とお金に関するもの（3件、37.5％）が多かった。例えば「アルバイトと授業の両立が大変」という回答がみられた。`,
+  adv:()=>`<p>キーワードで数えることもできます：<code>=COUNTIF(A2:A9,"*授業*")</code>（「授業」という文字を含む回答の数）。ただし「講義」「課題」のような言いかえは数えられないので、最後は人が読んで確かめます。</p>`},
+
+ cross:{title:'クロス集計（ピボットテーブル）',look:'グループごとの割合（行集計に対する比率）',rule:'グループの間で割合が何ポイントちがうかを見る',
+  what:u=>`2つの質問を組み合わせた人数表（{{クロス集計}}）を作り、グループごとの割合を比べます。「一人暮らしの人は、アルバイトをしている割合が高い？」のような問いに、ひと目で答えられます。`,
+  steps:u=>[`表の中をクリック → <b>挿入</b> → <b>ピボットテーブル</b> → OK。`,
+   `比べたいグループの質問（見本：居住形態）を「<b>行</b>」へドラッグする。`,
+   `もう一方の質問（見本：アルバイト）を「<b>列</b>」へドラッグする。`,
+   `どちらかの質問をもう一度「<b>値</b>」へドラッグする。文字の項目なら自動で「個数」になる。「ID」のような数字の列を入れたときは「合計」になってしまうので、値の項目をクリック → <b>値フィールドの設定</b> → 「集計方法」タブ → 「個数」に変える。`,
+   `割合にする：値の項目をクリック → <b>値フィールドの設定</b> → 「<b>計算の種類</b>」タブ → 「<b>行集計に対する比率</b>」→ OK。各行の合計が100％になる。`,
+   `「(空白)」の行や列があれば、「行ラベル」「列ラベル」の▼で「(空白)」のチェックを外す。`,
+   `複数回答の質問は、選択肢ごと（見本：Instagramの1／0の列）に別々の表を作る。`],
+  sample:()=>{const s=S.cross;const cnt=grid({cols:['A','B','C','D'],r0:3,rows:[['個数 / アルバイト','列ラベル'],['行ラベル','あり','なし','総計'],...s.rows.map((r,i)=>[r,...s.O[i],s.R[i]]),['総計',...s.C,s.N]],hd:(i,j)=>i<=1||j===0});
+   const per=grid({cols:['A','B','C','D'],r0:3,rows:[['個数 / アルバイト','列ラベル'],['行ラベル','あり','なし','総計'],...s.rows.map((r,i)=>[r,xpct(s.rowpct[i][0]/100),xpct(s.rowpct[i][1]/100),'100.00%']),['総計',xpct(s.C[0]/s.N),xpct(s.C[1]/s.N),'100.00%']],mk:{B5:['①'],B6:['①'],B7:['①']},hd:(i,j)=>i<=1||j===0});
+   return '<p class="cap">人数の表（計算の種類＝計算なし）</p>'+cnt+'<p class="cap">割合の表（計算の種類＝行集計に対する比率）</p>'+per+'<p class="cap">見本データ。行の並び順は、データによって変わることがあります。</p>'},
+  read:()=>{const s=S.cross;const r=s.rowpct.map(x=>x[0]);return [['① どこを見るか','割合の表のB列（アルバイト「あり」の割合）を、行どうしで比べる。'],['② 数字の意味',`アルバイトをしている割合は、実家${pct(r[0])}、一人暮らし${pct(r[1])}、寮${pct(r[2])}。一人暮らしと寮では${(r[1]-r[2]).toFixed(1)}ポイントの差がある。`],['③ わかったこと','一人暮らしの学生はアルバイトをしている割合が高く、寮の学生は低い。この差が統計的に有意かどうかは、カイ二乗検定で確かめられる。']]},
+  guide:()=>T(`<div class="guide"><b>どちらを「行」にする？</b><p>比べたいグループ（原因と考える側。見本では居住形態）を「行」にして、「行集計に対する比率」を出します。こうすると、グループごとの割合を縦に並べて比べられます。</p><p>差は「何ポイント」で表します（50.0％と83.3％なら33.3ポイントの差）。</p></div>`)+`<div class="btnrow"><button type="button" data-open="chi23">この差を検定する：カイ二乗検定の説明を見る</button></div>`,
+  report:()=>{const s=S.cross;const r=s.rowpct.map(x=>x[0]);return `居住形態別にアルバイトをしている割合をみると、一人暮らしが${pct(r[1])}（${s.R[1]}人中${s.O[1][0]}人）と最も高く、実家が${pct(r[0])}（${s.R[0]}人中${s.O[0][0]}人）、寮が${pct(r[2])}（${s.R[2]}人中${s.O[2][0]}人）であった。`},
+  adv:()=>`<p>人数が少ないグループの割合は大きく動きます。見本の寮（12人）では、1人ちがうだけで割合が約8ポイント変わります。割合と一緒に人数も書きましょう。</p>`},
+
+ chi22:{title:'カイ二乗検定（2×2の表）',look:'CHISQ.TESTで求めたp値と、割合の差',rule:'p＜0.05なら「関連がある」。差は何ポイントかで書く',
+  what:u=>`答えが2つずつの2つの質問（${u.gen?'例：アルバイトの有無とサークル加入':u.v1+'と'+u.v2}）で、グループによる割合の違いが、<strong>関係がないと仮定したときに起こりにくい差か</strong>を確かめます。「アルバイトをしている人は、サークルに入っている割合がちがう？」に、p値で答えを出せます。`,
+  steps:u=>chiSteps(u,'2×2','B3:C4','B8:C9','$D3*B$5/$D$5','D5',2,2),
+  sample:()=>chiGrid(X22,['あり','なし'],['加入','未加入'],'加入の割合','実際の人数（行：アルバイト、列：サークル）'),
+  read:()=>{const s=X22;const a=s.O[0][0]/s.R[0]*100,b=s.O[1][0]/s.R[1]*100;return [['① どこを見るか','B11のp値と、E列の割合。'],['② 数字の意味',`${pT(s.p)}。0.05よりずっと大きい。サークルに加入している割合は、アルバイトあり${pct(a)}、なし${pct(b)}で、差は${(a-b).toFixed(1)}ポイント。`],['③ わかったこと','関係がないと仮定しても、この程度の差は十分に起こりうる（p≧0.05）。アルバイトの有無とサークル加入に関連があるとはいえない。']]},
+  guide:()=>GUIDE.p()+T(`<div class="guide"><b>2×2の表の読み方</b><p>p値で「関連があるか」を判断し、関連の中身は割合の差（何ポイント）で書きます。</p></div>`)+GUIDE.E5(),
+  report:()=>{const s=X22;const a=s.O[0][0]/s.R[0]*100,b=s.O[1][0]/s.R[1]*100;return `アルバイトの有無とサークル加入の関連をカイ二乗検定で調べた。サークルに加入している割合は、アルバイトをしている学生で${pct(a)}、していない学生で${pct(b)}であり、統計的に有意な関連はみられなかった（χ²(1)=${f2(s.chi2)}, ${pT(s.p)}）。`},
+  adv:()=>chiAdv(X22,'B12','B13','B3:C4','B8:C9','D5','MIN(2,2)')+T(`<p>期待度数に5未満のマスがある2×2の表では、「フィッシャーの正確確率検定」を使います（Excelには専用の関数がありません）。</p><p>ExcelのCHISQ.TESTは、2×2の表でも補正（イェーツの補正）をしない計算です。教科書によって補正をする場合があり、p値が少しちがうことがあります。</p>`)},
+
+ chi23:{title:'カイ二乗検定（2×3以上の表）',look:'CHISQ.TESTで求めたp値と、グループごとの割合',rule:'p＜0.05なら「表のどこかに偏りがある」。どこかは割合で見る',
+  what:u=>`選択肢が3つ以上ある質問を含む人数表（${u.gen?'例：居住形態×アルバイトの有無':u.v1+'×'+u.v2}）で、グループによる割合の違いが、<strong>関係がないと仮定したときに起こりにくい差か</strong>を確かめます。「居住形態によって、アルバイトをしている割合はちがう？」に、p値で答えを出せます。`,
+  steps:u=>chiSteps(u,'3×2','B3:C5','B9:C11','$D3*B$6/$D$6','D6',3,2),
+  sample:()=>chiGrid(X23,X23.rows,['あり','なし'],'ありの割合','実際の人数（行：居住形態、列：アルバイト）'),
+  read:()=>{const s=X23;const r=s.rows.map((x,i)=>s.O[i][0]/s.R[i]*100);return [['① どこを見るか','B13のp値と、E列の割合。'],['② 数字の意味',`${pT(s.p)}で、0.01≦p＜0.05なので5％水準で統計的に有意。アルバイトをしている割合は、実家${pct(r[0])}、一人暮らし${pct(r[1])}、寮${pct(r[2])}。`],['③ わかったこと','居住形態によって、アルバイトをしている割合はちがう。p値だけでは「どのグループが」はわからないので、割合を見る：一人暮らしが高く、寮が低い。']]},
+  guide:()=>GUIDE.p()+T(`<div class="guide"><b>2×3以上の表の読み方</b><p>p値が小さいことは、「関係がないと仮定すると起こりにくい偏りが、表のどこかにある」ことだけを示します。どのグループが多い・少ないかは、割合の表で探して書きます。</p></div>`)+GUIDE.E5(),
+  report:()=>{const s=X23;const r=s.rows.map((x,i)=>s.O[i][0]/s.R[i]*100);return `居住形態とアルバイトの有無の関連をカイ二乗検定で調べたところ、5％水準で統計的に有意な関連がみられた（χ²(${s.df})=${f2(s.chi2)}, ${pT(s.p)}）。アルバイトをしている割合は、一人暮らしで${pct(r[1])}と高く、寮では${pct(r[2])}と低かった（実家は${pct(r[0])}）。`},
+  adv:()=>chiAdv(X23,'B14','B15','B3:C5','B9:C11','D6','MIN(3,2)')+`<p>どのマスが特に多い・少ないかを統計的に確かめる「残差分析」という方法もあります（このナビの範囲外）。</p>`},
+
+ pairedcat:{title:'回答の変化を調べる（同じ質問を2回）',look:'答えが変わった人数と、マクネマー検定のp値',rule:'変わった向きの人数を比べ、p＜0.05なら「変化がある」',
+  what:u=>`同じ人に同じ質問を2回（授業の前と後など）したときは、「何人の答えが、どちらの向きに変わったか」を数えます。「反対→賛成」に変わった人と「賛成→反対」に変わった人の数の差が、本当は変化がないと仮定したときに起こりにくい差かを、{{マクネマー検定}}で確かめられます。`,
+  steps:u=>[`1行に1人で、1回目の答え（見本：M列 授業前の賛否）と2回目の答え（N列 授業後の賛否）を並べる。`,
+   `ピボットテーブルを作る：1回目の答えを「<b>行</b>」、2回目の答えを「<b>列</b>」、どちらかを「<b>値</b>」（個数）へ。「行ラベル」と「列ラベル」の両方の▼で「(空白)」のチェックを外す（どちらかに答えていない人を除くため）。`,
+   `人数の部分を総計ごとコピーし、新しいシートのA2で右クリック → 「貼り付けのオプション」の「<b>値</b>」。見本の形（B3:C4に人数）に整える。`,
+   `表の読み方：左上（賛成→賛成）と右下（反対→反対）は答えが変わらなかった人。右上（C3：賛成→反対）と左下（B4：反対→賛成）が変わった人。`,
+   `答えが2つ（2×2）のとき、p値を出す：<code>=CHISQ.DIST.RT((C3-B4)^2/(C3+B4),1)</code>`,
+   `答えが3つ以上のときは、変わった人数と割合を表にして示す（検定はこのナビの範囲外）。`],
+  sample:()=>{const s=PC;return grid({cols:['A','B','C','D'],r0:2,rows:[['授業前＼授業後','賛成','反対','合計'],['賛成',s.O[0][0],s.O[0][1],s.O[0][0]+s.O[0][1]],['反対',s.O[1][0],s.O[1][1],s.O[1][0]+s.O[1][1]],['合計',s.O[0][0]+s.O[1][0],s.O[0][1]+s.O[1][1],S.n],[],['p値',s.p]],mk:{C3:['①','y'],B4:['①','y'],B7:['②']},hd:(i,j)=>i===0||j===0})+'<p class="cap">見本データ（授業前と授業後の賛否）。B7は <code>=CHISQ.DIST.RT((C3-B4)^2/(C3+B4),1)</code>。</p>'},
+  read:()=>{const s=PC;return [['① どこを見るか','答えが変わった人数（C3とB4）と、B7のp値。'],['② 数字の意味',`反対→賛成が${s.c}人、賛成→反対が${s.b}人。${pT(s.p)}で、p＜0.01なので1％水準で統計的に有意。`],['③ わかったこと',`授業の後、賛成は${s.pre_yes}人から${s.post_yes}人に増えた。賛成に変わった人のほうが多く、この差は1％水準で統計的に有意。`]]},
+  guide:()=>GUIDE.p()+T(`<div class="guide"><b>変わった人数が少ないとき</b><p>答えが変わった人の合計（見本では${PC.b}＋${PC.c}＝${PC.b+PC.c}人）が25人未満のときは、「発展」にある正確なp値の式を使います。</p></div>`),
+  report:()=>{const s=PC;return `授業の前後で同じ質問をしたところ、賛成は${s.pre_yes}人（${pct(s.pre_yes/S.n*100)}）から${s.post_yes}人（${pct(s.post_yes/S.n*100)}）に増えた。反対から賛成に変わった学生は${s.c}人、賛成から反対に変わった学生は${s.b}人であり、マクネマー検定の結果、この変化は1％水準で統計的に有意であった（χ²(1)=${f2(s.chi2)}, ${pT(s.p)}）。`},
+  adv:()=>`<p>変わった人の合計が25人未満のときの正確なp値：<code>=MIN(1,2*BINOM.DIST(MIN(C3,B4),C3+B4,0.5,TRUE))</code>（見本データでは ${f3(PC.p_exact)}）。</p><p>同じ人を2回数えた表なので、ふつうのカイ二乗検定（CHISQ.TEST）は使いません。</p>`},
+
+ corr:{title:'相関係数（ピアソンの r）',look:'相関係数 r と、そのp値',rule:'rの絶対値で強さ、＋−で向きを読む。p＜0.05なら有意',
+  what:u=>`「勉強時間が長い人ほど、テストの点数も高い？」のように、2つの数値（${u.gen?'例：勉強時間とテストの点数':u.v1+'と'+u.v2}）が一緒に動くかを、−1〜＋1の1つの数（{{相関係数}} r）で表します。{{散布図}}と一緒に見ると、関係の形がひと目でわかります。`,
+  steps:u=>[`同じ人の2つの数値を同じ行に並べる（見本：H列 勉強時間、J列 期末テスト）。`,
+   missStep('勉強時間（H列）と期末テスト（J列）'),
+   `散布図を描く：2つの列を選ぶ（離れた列は Ctrl キー〔Macは command キー〕を押しながら選ぶ）→ <b>挿入</b> → 「散布図」。点が右上がりに並べば＋、右下がりなら−の相関。`,
+   `空いているセルに <code>=CORREL(H2:H61,J2:J61)</code> と入れて r を出す。`,
+   `p値を出す：「データ分析」→「回帰分析」で、入力 Y 範囲に一方（J1:J61）、入力 X 範囲にもう一方（H1:H61）を入れ、「ラベル」にチェックして実行。X の行（勉強時間）の「P-値」が、相関係数のp値と同じ値になる。`],
+  sample:()=>grid({cols:['Q','R','S'],rows:[['相関係数 r',C.r,'=CORREL(H2:H61,J2:J61)'],['人数',C.n,'=COUNT(H2:H61)'],['p値',C.p,'回帰分析の出力 E18 の値']],mk:{R1:['①'],R3:['②']},hd:(i,j)=>j===0})+'<p class="cap">見本データ（1週間の勉強時間と期末テストの点数）。S列は説明のために書いたもの。</p>',
+  read:()=>[['① どこを見るか','R1の r と、R3のp値（回帰分析のP-値）。'],['② 数字の意味',`r=${f2(C.r)}。＋なので「勉強時間が長いほど点数が高い」向き。絶対値${f2(C.r)}は0.4以上0.7未満なので中程度の相関。p値の ${xl(C.p)} は0.001よりずっと小さい（1％水準で統計的に有意）。`],['③ わかったこと','勉強時間と期末テストの点数には、中程度の正の相関がある（1％水準で統計的に有意）。']],
+  guide:()=>GUIDE.r()+GUIDE.p()+GUIDE.E(),
+  report:()=>`1週間の勉強時間と期末テストの点数の間には、中程度の正の相関がみられた（r=${f2(C.r)}, ${pT(C.p)}, n=${C.n}）。`,
+  adv:()=>`<p>rの区切り（0.2、0.4、0.7）は、読みやすくするための便宜的な目安です。0.39と0.41に本質的なちがいはありません。分野によって別の目安が使われることもあります。</p><p>rは「直線的な関係」の強さです。山なりのような曲線の関係はうまく表せないので、必ず散布図も見ます。極端な値の人が1人いるだけで r が大きく変わることもあります。</p><p>相関は「原因と結果」の証明ではありません（勉強時間が点数を上げたのか、得意な人が長く勉強するのかは、rだけでは区別できません）。</p><p>同じデータで単回帰分析をすると、R²＝r²（${f2(C.r)}×${f2(C.r)}≒${f2(C.r*C.r)}）になります。</p><p>5段階以上の評価どうしの関係には、順位を使う「スピアマンの順位相関」も使えます（<code>=RANK.AVG</code>で順位にしてからCORREL）。</p>`},
+
+ paired:{title:'対応のあるt検定',look:'T.TESTで求めたp値と、平均の差',rule:'p＜0.05なら「平均が変わった」。何点変わったかも書く',
+  what:u=>`同じ人を2回測った数値（${u.gen?'例：授業の前と後の小テスト':u.v1+'と'+u.v2}）の平均が、変わったといえるかを確かめます。1人ひとりの「後−前」の差をもとに判断するので、人による元々の得意・不得意に邪魔されにくい方法です。`,
+  steps:u=>[`同じ人の1回目と2回目を同じ行に並べる（見本：K列 小テスト前、L列 小テスト後）。`,
+   missStep('小テスト前（K列）と小テスト後（L列）'),
+   `空いているセル（見本ではQ列から）に、それぞれの平均：<code>=AVERAGE(K2:K61)</code>、<code>=AVERAGE(L2:L61)</code>`,
+   `平均の差（後−前）を計算する。`,
+   T(`p値：<code>=T.TEST(K2:K61,L2:L61,2,1)</code>。3つ目の「2」は{{両側検定}}（上がったか下がったかを決めつけない）、4つ目の「1」は「同じ人の2回（{{対応あり}}）」という意味。`)],
+  sample:()=>grid({cols:['Q','R','S'],rows:[['前の平均',P.m1,'=AVERAGE(K2:K61)'],['後の平均',P.m2,'=AVERAGE(L2:L61)'],['差（後−前）',P.diff,'=R2-R1'],['p値',P.p,'=T.TEST(K2:K61,L2:L61,2,1)'],['人数',P.n,'=COUNT(K2:K61)']],mk:{R3:['①','y'],R4:['②']},hd:(i,j)=>j===0})+'<p class="cap">見本データ（授業の前と後の小テスト、100点満点）。</p>',
+  read:()=>[['① どこを見るか','R4のp値と、R3の平均の差。'],['② 数字の意味',`${pT(P.p)}で、0.01≦p＜0.05なので5％水準で統計的に有意。平均は${f1(P.m1)}点から${f1(P.m2)}点へ、${f1(P.diff)}点上がった。`],['③ わかったこと',`授業の後、小テストの平均点は${f1(P.diff)}点上がり、その差は5％水準で統計的に有意だった。`]],
+  guide:()=>GUIDE.p()+T(`<div class="guide"><b>差の大きさも書く</b><p>p値からわかるのは、「差がないと仮定したら、めったに起きない結果かどうか」だけです。差の大きさはわからないので、「何点上がったか」も必ず書きます。</p></div>`),
+  report:()=>`授業の前後で小テストの点数を比べたところ、平均点は${f1(P.m1)}点から${f1(P.m2)}点へ${f1(P.diff)}点上がり、対応のあるt検定の結果、5％水準で統計的に有意な差がみられた（${pT(P.p)}, n=${P.n}）。`,
+  adv:()=>`<p>「データ分析」の「t 検定: 一対の標本による平均の検定」を使うと、t値（見本では${f2(P.t)}）も表で出ます。レポートで t(${P.n-1})=${f2(P.t)} のように書く場合に使います。</p><p>同じ人の、単位が同じ2つの数値（数学と英語の点数など）の平均を比べるときにも使えます。</p><p>差（後−前）に極端な値の人がいないかも確かめます。</p>`},
+
+ welch:{title:'対応のないt検定（Welch法）',look:'T.TESTで求めたp値と、グループごとの平均',rule:'p＜0.05なら「平均に差がある」。どれくらい差があるかも書く',
+  what:u=>`別々の人の2つのグループ（${u.gen?'例：アルバイトをしている人／していない人':u.grp+'の2つのグループ'}）で、${u.gen?'数値':u.num}の平均に差があるといえるかを確かめます。2つのグループのばらつきがちがっていても使える、標準的な方法です。`,
+  steps:u=>welchSteps(u,3),
+  sample:()=>welchGrid('R6'),
+  read:()=>[['① どこを見るか','R6のp値と、3行目の平均。'],['② 数字の意味',`${pT(W.p)}で、0.01≦p＜0.05なので5％水準で統計的に有意。平均睡眠時間は、アルバイトあり${f2(W.m1)}時間、なし${f2(W.m2)}時間。`],['③ わかったこと',`アルバイトをしている学生は、していない学生より睡眠時間が平均${f2(W.m2-W.m1)}時間（約${Math.round((W.m2-W.m1)*60)}分）短い。この差は5％水準で統計的に有意。`]],
+  guide:()=>GUIDE.p(),
+  report:()=>`アルバイトをしている学生（n=${W.n1}）の1日の平均睡眠時間は${f2(W.m1)}時間で、していない学生（n=${W.n2}）の${f2(W.m2)}時間より短かった。Welchのt検定の結果、この差は5％水準で統計的に有意であった（${pT(W.p)}）。`,
+  adv:()=>welchAdv()},
+
+ equal:{title:'対応のないt検定（等分散を仮定）',look:'T.TESTで求めたp値と、グループごとの平均',rule:'p＜0.05なら「平均に差がある」',
+  what:u=>`Welch法と同じく、別々の人の2つのグループで数値の平均を比べます。「2つのグループのばらつきは同じ」と考える理由があるとき（先生の指示など）に使います。迷ったらWelch法を使います。`,
+  steps:u=>welchSteps(u,2),
+  sample:()=>welchGrid('R7'),
+  read:()=>[['① どこを見るか','R7のp値（等分散を仮定）と、3行目の平均。'],['② 数字の意味',`${pT(W.p_equal)}で、p＜0.01なので1％水準で統計的に有意（同じデータのWelch法は ${pT(W.p)}）。`],['③ わかったこと','アルバイトをしている学生は、していない学生より睡眠時間が短い。']],
+  guide:()=>GUIDE.p(),
+  report:()=>`アルバイトをしている学生（n=${W.n1}）の1日の平均睡眠時間は${f2(W.m1)}時間、していない学生（n=${W.n2}）は${f2(W.m2)}時間であり、t検定（等分散を仮定）の結果、1％水準で統計的に有意な差がみられた（${pT(W.p_equal)}）。`,
+  adv:()=>`<p>この方法は、0と1のダミー変数を使った単回帰分析と同じ結果になります（見本では、どちらも p=${f3(DS.pF)}）。</p>`+welchAdv()},
+
+ anova3:{title:'3グループ以上の平均比較（ダミー変数の回帰分析）',look:'有意 F（全体の差）と、各グループの係数',rule:'有意F＜0.05なら「グループによって平均がちがう」。係数＝基準グループとの差',
+  what:u=>`実家・一人暮らし・寮のように、3つ以上のグループ（${u.gen?'例：居住形態':u.grp}）で${u.gen?'数値':u.num}の平均に差があるかを確かめます。t検定を何度もくり返すと偶然の「有意」が出やすくなるので、{{ダミー変数}}だけを使った回帰分析で、<strong>1回で</strong>調べます（「分散分析」と同じ結論になります）。`,
+  steps:u=>[`基準にするグループを1つ決める（ふつうは人数が多いグループ。見本：実家）。`,
+   `データの右の空いた列に、基準<b>以外</b>のグループの列を作る：O1に「一人暮らし」、P1に「寮」と見出しを入れる。`,
+   `O2に <code>=IF(B2="","",IF(B2="一人暮らし",1,0))</code>、P2に <code>=IF(B2="","",IF(B2="寮",1,0))</code> と入れ、61行目まで下へコピーする。基準（実家）の人は両方とも0、居住形態が無回答の人は<b>空欄</b>になる（無回答の人を基準グループに入れないため）。`,
+   missStep('睡眠時間（I列）と居住形態（B列）'),
+   toolpak(),
+   regRun('Yにする数値の列（見本：睡眠時間 I1:I61）','ダミー変数の列（O1:P61）'),
+   regOpt(),
+   `グループごとの平均も出しておく：<code>=AVERAGEIF(B2:B61,"実家",I2:I61)</code>（"一人暮らし"、"寮"も同じように）。`],
+  sample:()=>'<p class="cap">ダミー変数の列を作ったところ（見本データの最初の5人）</p>'+grid({cols:['B','I','O','P'],rows:[['居住形態','睡眠時間','一人暮らし','寮'],...ROWS.slice(0,5).map(r=>[r['居住形態'],r['睡眠時間'],+(r['居住形態']==='一人暮らし'),+(r['居住形態']==='寮')])],hd:i=>i===0})+regGrid(A3,{F12:['①'],B17:['②','y'],B18:['③'],E18:['③'],B19:['④'],E19:['④']}),
+  read:()=>{const gm=A3.groupmeans;return [['① どこを見るか','F12の「有意 F」。'],['② 数字の意味',`有意F＝${f3(A3.pF)}で、p＜0.01なので1％水準で統計的に有意。B17の切片${f2(A3.coef[0])}は、基準（実家）の平均睡眠時間。`],['③ 一人暮らし',`係数${f2(A3.coef[1])}＝実家より${f2(-A3.coef[1])}時間短い（平均${f2(gm['一人暮らし'])}時間）。P-値${f3(A3.p[1])}で1％水準で統計的に有意。`],['④ 寮',`係数＋${f2(A3.coef[2])}＝実家より${f2(A3.coef[2])}時間長い（平均${f2(gm['寮'])}時間）。P-値${f3(A3.p[2])}で、実家との差は有意とはいえない。`],['わかったこと',`居住形態によって睡眠時間の平均はちがう。特に一人暮らしの学生は、実家の学生より約${Math.round(-A3.coef[1]*60)}分短い。`]]},
+  guide:()=>GUIDE.F()+GUIDE.p()+GUIDE.R2(),
+  report:()=>{const gm=A3.groupmeans;return `居住形態によって1日の平均睡眠時間が異なるかを、実家を基準としたダミー変数による回帰分析で調べたところ、全体として1％水準で統計的に有意な差がみられた（F(${A3.df_reg},${A3.df_res})=${f2(A3.F)}, ${pT(A3.pF)}）。一人暮らしの学生の平均睡眠時間（${f2(gm['一人暮らし'])}時間）は実家の学生（${f2(gm['実家'])}時間）より${f2(-A3.coef[1])}時間短く、この差は1％水準で統計的に有意であった（${pT(A3.p[1])}）。寮の学生（${f2(gm['寮'])}時間）と実家の学生の差は有意ではなかった（${pT(A3.p[2])}）。`},
+  adv:()=>`<p>一人暮らしと寮のように、基準<b>以外</b>のグループどうしを比べたいときは、基準を変えて（例：一人暮らしを基準にして）もう一度回帰分析をします。</p><p>「データ分析」の「分散分析: 一元配置」でも、同じF値とp値（見本：F=${f2(A3.F)}、p=${f3(A3.pF)}）が出ます。</p><p>ダミー変数は「グループの数−1本」です。基準のグループの列まで作って全部入れると、計算がおかしくなります。</p>`},
+
+ simple:{title:'単回帰分析',look:'係数とそのP-値、R²、有意 F',rule:'係数の＋−と大きさで関係を読み、P-値＜0.05なら有意',
+  what:u=>`「勉強時間が1時間増えると、テストの点数は何点上がる？」のように、1つの項目（X）で数値（Y）を説明し、その関係を直線の式で表します。${u.gen?'':'あなたの分析では、Y＝'+u.y+'、X＝'+u.x+'です。'}`,
+  steps:u=>[missStep('期末テスト（J列）と勉強時間（H列）'),toolpak(),regRun('Y（見本：期末テスト J1:J61）','X（見本：勉強時間 H1:H61）'),regOpt(),`散布図（XとYの2列を選んで 挿入 → 散布図）も描いて、点がおおむね直線に沿っているかを確かめる。`],
+  sample:()=>regGrid(SR,{B5:['①'],F12:['②'],B18:['③'],E18:['④']}),
+  read:()=>[['① 重決定 R2（B5）',`R²=${f2(SR.R2)}。期末テストの点数の、人による違いの約${Math.round(SR.R2*100)}％を勉強時間で説明できている（0.2以上0.5未満なので「ある程度説明できている」）。`],['② 有意 F（F12）',`${xl(SR.pF)}（0.001よりずっと小さい）。式全体として1％水準で統計的に有意。`],['③ 係数（B18）',`${f2(SR.coef[1])}。1週間の勉強時間が1時間長いと、点数が平均で約${f1(SR.coef[1])}点高い。切片（B17）${f2(SR.coef[0])}は、勉強時間0時間のときの予測点。`],['④ P-値（E18）',`${xl(SR.p[1])}で1％水準で統計的に有意。`],['わかったこと','勉強時間が長い学生ほど、期末テストの点数が高い。勉強時間だけで、点数の違いの約4割を説明できる。']],
+  guide:()=>GUIDE.R2()+GUIDE.F()+GUIDE.p()+GUIDE.E(),
+  report:()=>`期末テストの点数を1週間の勉強時間で説明する単回帰分析を行った。勉強時間の係数は${f2(SR.coef[1])}であり（${pT(SR.p[1])}）、勉強時間が1時間長いと点数が平均で約${f1(SR.coef[1])}点高いと推定された。決定係数はR²=${f2(SR.R2)}であった。`,
+  adv:()=>`<p>係数と切片から予測の式が書けます：点数＝${f2(SR.coef[0])}＋${f2(SR.coef[1])}×勉強時間。勉強時間10時間なら約${f1(SR.coef[0]+SR.coef[1]*10)}点です。データの範囲（見本では${Math.min(...ROWS.map(r=>r['勉強時間']))}〜${Math.max(...ROWS.map(r=>r['勉強時間']))}時間）の外を予測するのは危険です。</p><p>R²は、相関係数 r を2乗した値と同じです（r=${f2(C.r)}）。</p><p>係数があっても、原因と結果の証明にはなりません。</p>`},
+
+ dsimple:{title:'ダミー変数を使った単回帰分析',look:'係数とそのP-値',rule:'係数＝「1」のグループと「0」のグループの平均の差',
+  what:u=>`「アルバイトあり＝1、なし＝0」のように、2つのグループを0と1（{{ダミー変数}}）に置きかえて回帰分析をします。係数がそのまま「2つのグループの平均の差」になります。${u.gen?'':'あなたの分析では、Y＝'+u.y+'、X＝'+u.x+'です。'}`,
+  steps:u=>[`データの右の空いた列に、O1「アルバイトあり」と見出しを入れ、O2に <code>=IF(C2="","",IF(C2="あり",1,0))</code> と入れて61行目まで下へコピーする。アルバイトの質問が無回答の人は空欄になる（「なし」のグループに入れないため）。複数回答の選択肢は、すでに1／0の列なのでそのまま使える。`,missStep('睡眠時間（I列）とアルバイト（C列）'),toolpak(),regRun('Y（見本：睡眠時間 I1:I61）','ダミー変数の列（O1:O61）'),regOpt()],
+  sample:()=>regGrid(DS,{B17:['①','y'],B18:['②'],E18:['③'],B5:['④','y']}),
+  read:()=>[['① 切片（B17）',`${f2(DS.coef[0])}＝「0」のグループ（アルバイトなし）の平均睡眠時間。`],['② 係数（B18）',`${f2(DS.coef[1])}＝アルバイトありの平均は、なしより${f2(-DS.coef[1])}時間短い（${f2(DS.coef[0]+DS.coef[1])}時間）。`],['③ P-値（E18）',`${f3(DS.p[1])}で、p＜0.01なので1％水準で統計的に有意。`],['④ R²（B5）',`${f2(DS.R2)}。0.2未満なので、アルバイトの有無だけで説明できる部分は小さい（アルバイトの有無だけで、1人ひとりの睡眠時間を言い当てるのは難しい）。一方で、2つのグループの平均の差は1％水準で統計的に有意。`]],
+  guide:()=>GUIDE.F()+GUIDE.p()+GUIDE.R2(),
+  report:()=>`アルバイトの有無（あり＝1、なし＝0）を説明変数、1日の睡眠時間を結果とする回帰分析を行った。アルバイトありの係数は${f2(DS.coef[1])}であり（${pT(DS.p[1])}）、アルバイトをしている学生の睡眠時間は、していない学生より平均${f2(-DS.coef[1])}時間短いと推定された（R²=${f2(DS.R2)}）。`,
+  adv:()=>`<p>この結果は、t検定（等分散を仮定）と同じp値になります（見本：p=${f3(W.p_equal)}）。平均の差を確かめるだけなら、Welchのt検定もおすすめです。</p>`},
+
+ multi:{title:'重回帰分析',look:'各係数とそのP-値、補正R²、有意 F',rule:'他の項目をそろえたときの関係を、係数とP-値で読む',
+  what:u=>`複数の項目（X）を同時に使って、数値（Y）を説明します。「睡眠時間が同じなら、勉強時間が1時間増えると何点上がる？」のように、<strong>他の項目の影響をそろえた</strong>うえでの関係がわかります。${u.gen?'':'あなたの分析では、Y＝'+u.y+'です。'}`,
+  steps:u=>[`Xにする列を<b>隣り合わせ</b>に並べる（見本：H列 勉強時間とI列 睡眠時間は、すでに隣同士）。離れているときは、空いた列にコピーして並べる。`,missStep('YとXにする元の列（見本：J列・H列・I列）'),toolpak(),regRun('Y（見本：期末テスト J1:J61）','Xの列すべて（見本：H1:I61）'),regOpt()],
+  sample:()=>regGrid(MR,{B5:['①'],B6:['①','y'],F12:['②'],B18:['③'],E18:['③'],B19:['④'],E19:['④']}),
+  read:()=>[['① R2（B5・B6）',`重決定R²=${f2(MR.R2)}で、点数の違いの約${Math.round(MR.R2*100)}％を2つの項目で説明できている（0.2以上0.5未満なので「ある程度」）。補正R²（${f2(MR.adjR2)}）は、Xの数を考えに入れて調整した値で、Xの数がちがう式と比べるときに使う。`],['② 有意 F（F12）',`${xl(MR.pF)}。式全体として1％水準で統計的に有意。`],['③ 勉強時間（B18・E18）',`係数${f2(MR.coef[1])}、P-値${xl(MR.p[1])}。睡眠時間が同じなら、勉強時間1時間あたり約${f1(MR.coef[1])}点高い（1％水準で統計的に有意）。`],['④ 睡眠時間（B19・E19）',`係数${f2(MR.coef[2])}、P-値${f3(MR.p[2])}。0.05以上なので、勉強時間をそろえたうえでの睡眠時間と点数の関係は、有意とはいえない。`]],
+  guide:()=>GUIDE.R2()+GUIDE.F()+GUIDE.p()+GUIDE.E(),
+  report:()=>`期末テストの点数を、勉強時間と睡眠時間で説明する重回帰分析を行った（R²=${f2(MR.R2)}、補正R²=${f2(MR.adjR2)}、有意F<0.001）。勉強時間の係数は${f2(MR.coef[1])}で、1％水準で統計的に有意であった（${pT(MR.p[1])}）。一方、睡眠時間の係数（${f2(MR.coef[2])}）は有意ではなかった（${pT(MR.p[2])}）。`,
+  adv:()=>T(`<p><b>{{多重共線性}}</b>：Xどうしが強く関係している（例：「勉強時間」と「課題に使った時間」）と、どちらの影響なのかを分けられず、係数が大きくぶれたり、P-値が大きくなったりします。確かめ方：Xどうしの相関係数（CORREL）を見て、絶対値が0.7以上（この授業の「強い相関」）なら注意し、どちらか1つにすることを考えます。一方のXがもう一方から計算で求められる組み合わせ（「1週間の勉強時間」と「1日の勉強時間×7」など）は、計算そのものが正しくできません。</p><p><b>必要な回答者数</b>：人数がXの数に比べて少ないと、係数やP-値が不安定になります。「Xの数の10〜20倍以上の人数」という目安がよく使われますが、それを満たせば十分という基準ではありません。「データ分析」の回帰分析で入れられるXは16列までです。</p><p>単位がちがう係数（時間と点など）の大きさは、そのまま比べられません。</p>`)},
+
+ dummy:{title:'ダミー変数を使った重回帰分析',look:'各係数とそのP-値、補正R²、有意 F',rule:'ダミーの係数＝ほかの項目をそろえたときの、基準グループとの差',
+  what:u=>`居住形態のような分類型の項目を0と1の列（{{ダミー変数}}）に置きかえて、数値の項目と一緒に回帰分析に入れます。「勉強時間が同じなら、一人暮らしの学生は実家の学生より何点低い？」がわかります。${u.gen?'':'あなたの分析では、Y＝'+u.y+'です。'}`,
+  steps:u=>[`分類型の項目ごとに、基準にするグループを1つ決める（見本：居住形態の「実家」）。`,
+   `Xにする列を、データの右の空いた列に<b>隣り合わせ</b>で作る：O1「勉強時間」・P1「一人暮らし」・Q1「寮」。`,
+   `O2に <code>=IF(H2="","",H2)</code>、P2に <code>=IF(B2="","",IF(B2="一人暮らし",1,0))</code>、Q2に <code>=IF(B2="","",IF(B2="寮",1,0))</code> と入れ、61行目まで下へコピーする。無回答の人は空欄になる（0や基準グループとして計算しないため）。`,
+   `ダミーの列は「選択肢の数−1本」（3つなら2本）。基準のグループ（実家）の列は作らない。複数回答の選択肢は、1／0の列をそのまま入れてよい。`,
+   missStep('期末テスト（J列）、勉強時間（H列）、居住形態（B列）'),toolpak(),regRun('Y（見本：期末テスト J1:J61）','Xの列（O1:Q61）'),regOpt()],
+  sample:()=>'<p class="cap">Xの列を作ったところ（見本データの最初の5人）</p>'+grid({cols:['B','J','O','P','Q'],rows:[['居住形態','期末テスト','勉強時間','一人暮らし','寮'],...ROWS.slice(0,5).map(r=>[r['居住形態'],r['期末テスト'],r['勉強時間'],+(r['居住形態']==='一人暮らし'),+(r['居住形態']==='寮')])],hd:i=>i===0})+regGrid(DR,{B5:['①'],B6:['①','y'],F12:['②'],B18:['③'],E18:['③'],B19:['④'],E19:['④'],B20:['⑤','y'],E20:['⑤','y']}),
+  read:()=>[['① R2（B5・B6）',`重決定R²=${f2(DR.R2)}で、点数の違いの約${Math.round(DR.R2*100)}％を説明できている（0.2以上0.5未満なので「ある程度」）。補正R²（${f2(DR.adjR2)}）は、Xの数を考えに入れて調整した値。`],['② 有意 F（F12）',`${xl(DR.pF)}。式全体として1％水準で統計的に有意。`],['③ 勉強時間',`係数${f2(DR.coef[1])}、P-値${xl(DR.p[1])}。居住形態が同じなら、勉強時間1時間あたり約${f1(DR.coef[1])}点高い。`],['④ 一人暮らし',`係数${f2(DR.coef[2])}、P-値${f3(DR.p[2])}。勉強時間が同じなら、一人暮らしの学生は実家の学生より平均約${Math.round(-DR.coef[2])}点低い（5％水準で統計的に有意）。`],['⑤ 寮',`係数${f2(DR.coef[3])}、P-値${f3(DR.p[3])}。実家との差は有意とはいえない。`]],
+  guide:()=>GUIDE.F()+GUIDE.R2()+GUIDE.p()+GUIDE.E(),
+  report:()=>`期末テストの点数を、勉強時間と居住形態（実家を基準とするダミー変数）で説明する重回帰分析を行った（R²=${f2(DR.R2)}、補正R²=${f2(DR.adjR2)}、有意F<0.001）。勉強時間の係数は${f2(DR.coef[1])}（${pT(DR.p[1])}）、一人暮らしの係数は${f2(DR.coef[2])}（${pT(DR.p[2])}）であり、勉強時間が同じであれば、一人暮らしの学生は実家の学生より平均で約${Math.round(-DR.coef[2])}点低いと推定された。寮の係数（${f2(DR.coef[3])}）は有意ではなかった（${pT(DR.p[3])}）。`,
+  adv:()=>`<p>一人暮らしと寮を直接比べたいときは、基準を変えて（例：一人暮らしを基準にして）もう一度分析します。</p><p><code>=IF(B2="一人暮らし",1,0)</code> のように空欄を区別しない式を使うと、居住形態が無回答の人が「一人暮らしでも寮でもない人」＝基準グループ（実家）として計算されてしまいます。必ず空欄を残す式を使います。</p>`},
+
+ partial:{sampleNote:'架空の8人の例で計算した結果です（60人の見本データとは別）。',title:'一部だけ同じ人の前後比較',look:'2回とも答えた人の数と、その人たちだけの比較',rule:'結びつけられる人だけで「同じ人の比較」をする',
+  what:u=>`1回目と2回目の回答者が一部だけ重なっているときは、「同じ人の比較」の方法も「別々の人の比較」の方法も、そのままでは正しく使えません。そこで、学籍番号などで<strong>2回とも答えた人</strong>を探し、その人たちだけで「同じ人の比較」をします。`,
+  steps:u=>[`1回目と2回目のデータに、学籍番号などのIDの列があるか確かめる。IDがない（無記名で照合できない）ときは、最後の手順へ。`,
+   `<b>IDの確認</b>：それぞれの回のデータで、IDに空欄や重複がないことを確かめる。空欄の数 <code>=COUNTBLANK('1回目'!A2:A31)</code> と、重複の数 <code>=COUNTA('1回目'!A2:A31)-COUNTA(UNIQUE('1回目'!A2:A31))</code> がどちらも0ならよい（2回目も同じように。範囲は実際の人数に合わせる）。同じ人が2回答えている（重複がある）場合は、どちらの回答を採用するかを決め、使わない行を消してから先へ進む。IDが空欄の回答は照合できないので、照合には使わない。`,
+   `新しいシートを作り、A2に、1回目と2回目の<b>両方の回のIDを重ならないように</b>並べる式を入れる：<code>=SORT(UNIQUE(VSTACK('1回目'!A2:A31,'2回目'!A2:A31)))</code>（それぞれのシートのA列がID。範囲は実際の人数に合わせる）。どちらか1回だけ答えた人も、ここに入る。`,
+   `B2に1回目の答え、C2に2回目の答えを持ってくる：B2 <code>=XLOOKUP(A2,'1回目'!$A$2:$A$31,IF('1回目'!$B$2:$B$31="","",'1回目'!$B$2:$B$31),"")</code>、C2は「1回目」を「2回目」に変えた式。範囲（$A$2:$A$31、$B$2:$B$31）は、列全体ではなく、それぞれの回の実際の人数に合わせる。下へコピーする。<code>IF(…="","",…)</code> の部分は、答えの欄が空欄の人を「空欄」のまま持ってくるためのもので、これがないと無回答が0になってしまう。0点のような正しい0はそのまま0になる。その回にIDがない人も空欄になる。`,
+   `2回とも答えたかを確かめる：D2に <code>=AND(B2<>"",C2<>"")</code> と入れて下へコピーする。TRUEなら2回とも答えた人。`,
+   `<b>データ</b> → <b>フィルター</b> → D列の▼で「TRUE」だけにチェック → 表示された行をコピーして、新しいシートに貼り付ける。`,
+   `そのシートで、数値なら「対応のあるt検定」、答えが2つの分類なら「回答の変化（マクネマー検定）」の手順で分析する（説明を開く：<button type="button" class="term" data-open="paired">対応のあるt検定</button>／<button type="button" class="term" data-open="pairedcat">回答の変化</button>）。`,
+   `答えが3つ以上の分類のとき：ピボットテーブルで、1回目の答えを「行」、2回目の答えを「列」にした人数表を作り、どの答えからどの答えに変わった人が何人いるかを示す（左上から右下への斜めのマスは、答えが変わらなかった人）。通常のカイ二乗検定や、答えが2つのとき用のマクネマー検定は使わない。検定が必要なときは先生に相談する。`,
+   `IDで結びつけられないとき：検定はせずに、1回目と2回目の平均（または割合）と人数を並べて示し、「回答者が一部異なるため、検定は行わなかった」と書く。検定が必要なら先生に相談する。`],
+  sample:()=>{const d=PART;return grid({cols:['A','B','C','D'],rows:[['ID','1回目','2回目','2回とも'],...d.map(r=>[r[0],r[1]===null?'':r[1],r[2]===null?'':r[2],(r[1]!==null&&r[2]!==null)?'TRUE':'FALSE']),[],['2回とも答えた人',PARTS.n]],mk:Object.fromEntries(d.map((r,i)=>(r[1]!==null&&r[2]!==null)?['D'+(i+2),['①']]:null).filter(Boolean).concat([['B11',['②','y']]])),hd:(i,j)=>i===0||(i===10&&j===0)})+`<p class="cap">架空の例（小テスト、8人）。A列はSORT(UNIQUE(VSTACK(…)))、B列・C列はXLOOKUPの式（空欄を空欄のまま持ってくる形）、D列は <code>=AND(B2<>"",C2<>"")</code>、B11は <code>=COUNTIF(D2:D9,TRUE)</code>。</p>`},
+  read:()=>[['① どこを見るか','D列がTRUEの行（2回とも答えた人）と、B11の人数。'],['② 数字の意味',`8人のうち、2回とも答えたのは${PARTS.n}人。この${PARTS.n}人の平均は、1回目${f1(PARTS.m1)}点、2回目${f1(PARTS.m2)}点。`],['③ わかったこと',`比べられるのは${PARTS.n}人だけ。人数がとても少ないので、この例では検定をせずに平均の変化（${f1(PARTS.m2-PARTS.m1)}点）を示すにとどめる。`]],
+  guide:()=>T(`<div class="guide"><b>判断のしかた</b><p>2回とも答えた人が十分にいれば、その人たちだけで「同じ人の比較」の検定をします。人数が少ないときは、検定はせずに平均や割合の変化を示します。</p><p>2回とも答えた人は、熱心な人などに偏っているかもしれません。レポートには、全体の人数と、2回とも答えた人の人数を両方書きます。</p></div>`),
+  report:()=>`授業の前後で小テストを実施した（1回目${PARTS.n1}人、2回目${PARTS.n2}人）。2回とも受けた${PARTS.n}人について平均点を比べると、${f1(PARTS.m1)}点から${f1(PARTS.m2)}点へ${f1(PARTS.m2-PARTS.m1)}点上がった。人数が少ないため、検定は行わなかった。`,
+  adv:()=>`<p>2回とも答えた人と1回だけ答えた人を全員まとめて使う専門的な方法もありますが、統計ソフトが必要で、このナビの範囲外です。</p>`},
+ catpred:{title:'グループを予測したいとき',special:true},
+ catYmulti:{title:'結果（Y）が分類型で、Xが2つ以上',special:true}
+};
+/* --- 共通部品 --- */
+function chiSteps(u,shape,obs,exp,f,tot,R,Cn){
+ const pRow=shape==='2×2'?11:13;const cRow=pRow+1,vRow=pRow+2;
+ return [`クロス集計の手順で人数表を作る（値は「個数」、計算の種類は「<b>計算なし</b>」、「(空白)」は外す）。`,
+  `ピボットテーブルの「行ラベル」のセルから右下の「総計」のセルまでを選んでコピー → 新しいシートのA2で右クリック → 「貼り付けのオプション」の「<b>値</b>」。（ピボットテーブルのままだと、次の式を右や下へコピーしたときに正しく計算できません）`,
+  `貼り付けた表が見本と同じ形になっているか確かめる：${obs}に人数、D列に行の総計、${tot.slice(1)}行目に列の総計、${tot}に全体の人数。`,
+  T(`{{期待度数}}の表を作る：見本の位置に見出しを書き、左上のセルに <code>=${f}</code> と入れて、右と下へコピーする（${exp}）。`),
+  `p値：B${pRow}に <code>=CHISQ.TEST(${obs},${exp})</code>（合計の行と列は含めない）。`,
+  `割合も出す：E3に <code>=B3/D3</code> と入れて下へコピーし、パーセント表示にする。`,
+  `期待度数の表（${exp}）に、5未満の数がないか確かめる（下の「判断基準」）。`];
+}
+function chiGrid(s,rl,cl,lab,ttl){
+ const R=s.rows.length;const rows=[[ttl],['行ラベル',...cl,'総計',lab]];
+ s.O.forEach((o,i)=>rows.push([rl[i],...o,s.R[i],xpct(o[0]/s.R[i])]));
+ rows.push(['総計',...s.C,s.N]);rows.push([]);
+ rows.push(['期待度数',...cl]);s.E.forEach((e,i)=>rows.push([rl[i],...e]));rows.push([]);
+ const pr=rows.length+1;rows.push(['p値',s.p]);rows.push(['カイ二乗値（発展）',s.chi2]);rows.push(['クラメールのV（発展）',s.V]);
+ const mk={};mk['B'+pr]=['①'];for(let i=0;i<R;i++)mk['E'+(3+i)]=['②','y'];
+ const totRow=3+R;
+ return grid({cols:['A','B','C','D','E'],rows,mk,hd:(i,j,v)=>(j===0&&v!=='')||i===1||i===R+4})+`<p class="cap">見本データ。期待度数は B${totRow+3} に <code>=$D3*B$${totRow}/$D$${totRow}</code> と入れて右と下へコピーしたもの。B${pr} は <code>=CHISQ.TEST(B3:C${2+R},B${totRow+3}:C${totRow+2+R})</code>。</p>`;
+}
+function chiAdv(s,cc,vc,obs,exp,tot,mn){
+ return T(`<p><b>関連の強さ：{{クラメールのV}}</b>　p値は「関係がないと仮定したら、めったに起きない結果かどうか」を示す数で、関連の<strong>強さ</strong>ではありません（人数が多いと、小さな差でも有意になります）。強さはクラメールのVで表します。</p><ol><li>{{カイ二乗値}}：${cc}に <code>=SUMPRODUCT((${obs}-${exp})^2/${exp})</code>（実際の人数と期待度数のずれを合計したもの。見本では ${f3(s.chi2)}）</li><li>V：${vc}に <code>=SQRT(${cc}/(${tot}*(${mn}-1)))</code>（MINの中は表の行の数と列の数。見本では ${f3(s.V)}）</li></ol><p>Vは0〜1の数で、0に近いほど弱く、1に近いほど強い関連です。2×2や2×3のように、どちらかの質問の選択肢が2つの表では、0.1前後で弱い、0.3前後で中程度、0.5以上で強いとされることが多いです（両方3つ以上の表では、もっと小さい値でも強いと考えます）。</p><p>レポートの「χ²(${s.df})」のかっこの数は{{自由度}}で、（行の数−1）×（列の数−1）です。</p>`);
+}
+function welchSteps(u,type){
+ const st=u.st;const multi=!!(st&&st.purpose==='relation'&&catSlotRel(st)&&st.vars[catSlotRel(st)].kind==='M');
+ const s=[`1行に1人で、グループの列（見本：C列 アルバイト）と数値の列（I列 睡眠時間）がある形にする。`,
+  `空いているセル（見本ではQ列から）に、グループごとの人数を出す：<code>=SUMPRODUCT((C2:C61="あり")*ISNUMBER(I2:I61))</code>。睡眠時間に<b>数値で答えた人だけ</b>を数える式（無回答の人は数えない）。"なし"も同じように。`,
+  `平均：<code>=AVERAGEIF(C2:C61,"あり",I2:I61)</code>（空欄は自動で除かれる）。`,
+  T(`p値：<code>=T.TEST(FILTER(I2:I61,(C2:C61="あり")*ISNUMBER(I2:I61)),FILTER(I2:I61,(C2:C61="なし")*ISNUMBER(I2:I61)),2,${type})</code>。FILTERは「条件に合う行だけを取り出す」関数で、<code>ISNUMBER(I2:I61)</code>は「睡眠時間が数値で入っている行だけ」という条件。<b>この条件を外すと、無回答（空欄）が0時間として計算されてしまう</b>ので、必ず入れる。3つ目の「2」は{{両側検定}}、4つ目の「${type}」は${type===3?'{{Welch法}}':'等分散を仮定する方法'}という意味。`)];
+ s.push(multi?`<b>複数回答の選択肢をグループにするとき</b>：比べるのは「その選択肢を選んだ人（1）」と「選ばなかった人（0）」。式の条件の <code>C2:C61="あり"</code> を <code>E2:E61=1</code>、<code>C2:C61="なし"</code> を <code>E2:E61=0</code> にする（ISNUMBERの条件はそのまま）。この質問自体に答えていない人（E列が空欄）は、どちらにも入らない。Instagram利用者とTikTok利用者のように選択肢どうしを比べると、同じ人が両方に入るので比べられない。`:`複数回答の選択肢をグループにするときは、「選んだ人（1）」と「選ばなかった人（0）」を比べる（条件の <code>C2:C61="あり"</code> を <code>E2:E61=1</code> などにする。ISNUMBERの条件はそのまま）。`);
+ return s;
+}
+function welchGrid(hl){return grid({cols:['Q','R','S'],rows:[['','あり','なし'],['人数',W.n1,W.n2],['平均',W.m1,W.m2],['標準偏差',W.sd1,W.sd2],['平均の差',W.m1-W.m2],['p値（Welch法）',W.p],['p値（等分散を仮定）',W.p_equal]],mk:{[hl]:['①'],R3:['②','y'],S3:['②','y']},hd:(i,j)=>i===0||j===0})+`<p class="cap">見本データ（アルバイトの有無と1日の睡眠時間）。R2は <code>=SUMPRODUCT((C2:C61=R1)*ISNUMBER(I2:I61))</code>、R4は <code>=STDEV.S(FILTER(I2:I61,(C2:C61=R1)*ISNUMBER(I2:I61)))</code>、R6は <code>=T.TEST(FILTER(I2:I61,(C2:C61="あり")*ISNUMBER(I2:I61)),FILTER(I2:I61,(C2:C61="なし")*ISNUMBER(I2:I61)),2,3)</code>、R7は最後の数を2にしたもの。見本データには無回答がないので、ISNUMBERの条件があってもなくても同じ値になります。</p>`}
+function welchAdv(){return `<p>FILTER関数が使えない古いExcelでは、グループの列で表全体を並べ替え、「あり」の人の範囲と「なし」の人の範囲を直接選んで T.TEST に入れます。</p><p>「データ分析」の「t 検定: 分散が等しくないと仮定した2標本による検定」を使うと、t値も表で出ます。</p><p>3つ以上のグループで2つずつt検定をくり返すと、偶然の「有意」が出やすくなります。3つ以上なら「3グループ以上の平均比較」を使います。</p><p>どちらかのグループに極端な値の人がいないかも確かめます。グループの人数が少ない（数人程度）と、t検定の結果は不安定になり、本当にある差も有意になりにくくなります。人数が少ないときは、平均と一緒に一人ひとりの値も示します。</p>`}
+
+/* ========== 特別な到達先 ========== */
+function catpredInfo(st){
+ // 予測したいグループの数（2つ／3つ以上）
+ let k=null,u=U(st);
+ if(st&&st.purpose==='relation'){const c=catSlotRel(st);if(c)k=st.vars[c].kind==='C3'?3:2}
+ if(st&&st.purpose==='reg'&&st.vars.y)k=st.vars.y.kind==='C3'?3:2;
+ const intro=T(`<div class="warn"><b>予測と平均の比較は、目的がちがいます</b><table class="rule"><tr><th>予測する</th><td>1人ひとりの数値から「その人がどのグループに入るか」を当てる式を作る（{{ロジスティック回帰}}）。Excelの標準機能では難しい分析です。</td></tr><tr><th>平均を比べる</th><td>グループの間で、数値の平均に差があるかを確かめる。「数値とグループに関係があるか」を知りたいなら、こちらで答えが出ます。</td></tr></table><p>このナビでは、向きを逆にして「グループごとに数値の平均を比べる」分析を案内します。${u.gen?'':'（あなたの分析では、'+(st.purpose==='reg'?u.y:u.grp)+'のグループごとに、'+(st.purpose==='reg'?u.x:u.num)+'の平均を比べます）'}</p></div>`);
+ return {k,intro};
+}
+function catYmultiHTML(st){
+ const u=U(st);
+ return T(`<div class="concl"><div class="tag">1. 結論：使う分析方法</div><div class="m">Xを1つずつ、Yとの関係を調べる</div><dl><dt>使う項目</dt><dd>${u.y}と、Xの1つひとつ</dd><dt>見る数字</dt><dd>それぞれの組み合わせのp値</dd><dt>判断</dt><dd>p＜0.05の組み合わせが「関係がある」</dd></dl></div>
+ <div class="warn"><b>はじめに：この方法は、多変量解析の代わりにはなりません</b><p>ここで案内するのは、XとYの組み合わせを<strong>1つずつ</strong>調べる方法です。1つずつ調べると、ほかのXの影響をそろえられないので、「どのXが本当にYと関係しているのか」「ほかのXが同じでも関係があるのか」は判断できません。わかるのは、それぞれのXとYに関係があるかどうかだけです。複数のXを同時に使う分析（ロジスティック回帰などの{{多変量解析}}）は、統計ソフトで行います。</p></div>
+ <h3>2. この分析でわかること</h3><p>結果（Y）が分類型で、Xが2つ以上あるときに「全部のXを同時に使って、Yのどのグループに入るかを予測する」分析（{{ロジスティック回帰}}）は、Excelの標準機能では行えません。代わりに、<strong>Xを1つずつYと組み合わせて</strong>、関係があるかどうかを調べます。どのXがYと関係していそうかがわかります。</p>
+ <h3>3. Excelでの操作手順</h3><ol class="steps"><li>Xを1つ選ぶ。</li><li>下のボタンで「2つの質問の関係」に進み、1つ目の質問に${u.y}、2つ目の質問にそのXを選ぶ。案内された分析（カイ二乗検定・t検定など）をする。</li><li>ほかのXについても同じようにくり返す。</li><li>結果を下の見本のような表にまとめる。</li></ol>
+ <div class="btnrow"><button type="button" class="primary" id="goRelation">「2つの質問の関係」で1つずつ調べる</button></div>
+ <h3>4. 出力表の見本（まとめ表）</h3>`)+grid({cols:['A','B','C','D'],rows:[['X（Yはアルバイトの有無）','使った分析','p値','判断'],['居住形態','カイ二乗検定（3×2）',X23.p,'5％水準で有意'],['サークル加入','カイ二乗検定（2×2）',X22.p,'有意とはいえない'],['睡眠時間','Welchのt検定',W.p,'5％水準で有意']],mk:{C2:['①'],C3:['①'],C4:['①']},hd:i=>i===0})+
+ `<div class="read"><div><b class="k">① どこを見るか</b>C列のp値。</div><div><b class="k">② 数字の意味</b>居住形態（${pT(X23.p)}）と睡眠時間（${pT(W.p)}）は0.05未満、サークル加入（${pT(X22.p)}）は0.05以上。</div><div><b class="k">③ わかったこと</b>アルバイトの有無は、居住形態や睡眠時間と関係があり、サークル加入とは関係があるとはいえない。</div></div>
+ <h3>5. 数字の読み方と判断基準</h3>${GUIDE.p()}<h3>6. レポートの書き方の例</h3><div class="report">アルバイトの有無と各項目の関連を1つずつ調べたところ、居住形態（カイ二乗検定, ${pT(X23.p)}）と睡眠時間（Welchのt検定, ${pT(W.p)}）には統計的に有意な関連がみられたが、サークル加入には有意な関連はみられなかった（${pT(X22.p)}）。</div>
+ <h3>7. 発展・注意点</h3><details class="adv"><summary>発展：もっと知りたい人へ</summary><p>例：見本では居住形態も睡眠時間もアルバイトと関係がありましたが、一人暮らしの人は睡眠時間も短いので、どちらが本当にアルバイトと関係しているのかは、1つずつの分析では区別できません。</p><p>たくさんの組み合わせを検定すると、偶然の「有意」が出やすくなります。調べる組み合わせは、事前に決めておきます。</p></details>`;
+}
+
+/* ========== 結果画面 ========== */
+function methodBody(key,st,opt={}){
+ const m=M[key];const u=U(st);
+ const steps=m.steps(u).map(s=>T(s));
+ if(st&&!opt.noPrep){const prep=prepNotes(st);if(prep)steps.unshift(prep)}
+ let h=`<h3>2. この分析でわかること</h3><p>${T(m.what(u))}</p>${opt.extra||''}
+ <h3>3. Excelでの操作手順</h3><ol class="steps">${steps.map(s=>'<li>'+s+'</li>').join('')}</ol>
+ <h3>4. Excel出力表の見本</h3><p class="small">${m.sampleNote||'見本データ（架空のアンケート、60人）で実際に計算した結果です。<button type="button" class="term" data-data="1">見本データについて</button>'}</p>${m.sample()}
+ <div class="read">${m.read().map(([k,v])=>`<div><b class="k">${k}</b>${v}</div>`).join('')}</div>
+ <h3>5. 数字の読み方と判断基準</h3>${m.guide()}
+ <h3>6. レポートの書き方の例</h3><p class="small">④ 見本データの結果を、レポートではこう書きます。</p><div class="report">${m.report()}</div>
+ <h3>7. 発展・注意点</h3><details class="adv"><summary>発展：もっと知りたい人へ</summary>${T(m.adv())}${['chi22','chi23','paired','welch','equal','anova3','simple','dsimple','multi','dummy','pairedcat','corr'].includes(key)?pAdv():''}</details>`;
+ return h;
+}
+const pAdv=()=>`<p><b>p値についての注意</b>　p≧0.05は「差（関係）がないことが証明された」という意味ではありません。「差がないと仮定しても、今回くらいの結果はめずらしくない」という意味です。また、p値は「仮説が正しい確率」でもありません。「有意」は「差が大きい」「重要だ」という意味ではありません。人数が多いと小さな差でも有意になるので、差の大きさも一緒に見ます。たくさんの検定をすると、偶然の「有意」が出やすくなります。</p>`;
+function prepNotes(st){
+ const out=[];for(const [k,v] of Object.entries(st.vars)){const nm=st.names[k]?'「'+esc(st.names[k])+'」':slotLabel[k];
+  if(v.kind==='M')out.push(`${nm}は複数回答なので、選択肢ごとに列を作り、<b>選んだ＝1、選ばない＝0</b>を入れる。この質問に答えていない人は空欄のまま（0にしない）。分析では、選択肢1つを「選んだ／選ばない」の2グループとして扱う。`);
+  if(v.kind==='N'&&v.likert)out.push(`${nm}は段階評価なので、この授業の方針にしたがって「とても満足＝5、満足＝4…」のように点数を入力する（先生の指示があればそちらを優先）。「とても不満＝5」のように向きが逆の質問が混ざっていないかも確かめる。`);
+  if(v.kind==='C3'&&v.likert)out.push(`${nm}は3〜4段階の評価なので、点数ではなく分類型として、段階ごとの人数や割合を比べる。`)}
+ return out.length?'<b>データの準備</b>：'+out.join('<br>'):'';
+}
+function conclusion(key,st,reason){
+ const m=M[key];const u=U(st);let items='';
+ if(st){const p=st.purpose;
+  const nmY=st.names.y?'「'+esc(st.names.y)+'」':'結果の質問',nmX=(G[st.node].m==='multi'||G[st.node].m==='dummy')?'複数の項目':(st.names.x?'「'+esc(st.names.x)+'」':'説明に使う項目');
+  const use=p==='single'?u.v1:p==='relation'?u.v1+' と '+u.v2:'Y＝'+nmY+'、X＝'+nmX;
+  items+=`<dt>使う項目</dt><dd>${use}</dd>`}
+ items+=`<dt>見る数字</dt><dd>${m.look}</dd><dt>判断</dt><dd>${m.rule}</dd>`;
+ return `<div class="concl"><div class="tag">1. 結論：使う分析方法</div><div class="m">${m.title}</div><dl>${items}</dl>${reason?`<div class="why">${reason}</div>`:''}</div>`;
+}
+function pathText(st){return st.trail.filter(t=>!t.inB).map(t=>t.edge).join(' → ')}
+function leafExtra(leaf){
+ const t={L_welch_t:`<div class="note"><b>データの並べ方（回答者が別々のとき）</b><p>1回目の回答と2回目の回答を1つのシートに縦につなげ、「時期」の列（1回目／2回目）を作ります。下の手順の「アルバイト」の列（C列）を「時期」の列に、"あり"・"なし"を"1回目"・"2回目"に読み替えてください。</p></div>`,
+  L_chi22_t:`<div class="note"><b>データの並べ方（回答者が別々のとき）</b><p>1回目の回答と2回目の回答を1つのシートに縦につなげ、「時期」の列（1回目／2回目）を作ります。ピボットテーブルでは「時期」を行、「答え」を列に入れます。表の大きさは「時期（2つ）×答えの選択肢の数」です（賛成・中立・反対の3択なら2×3）。あとは下の手順と同じです。</p></div>`,
+  L_text_xm:`<div class="btnrow"><button type="button" data-open="dummy">1／0の列にしたあと：ダミー変数を使った重回帰分析の手順を見る</button></div>`};
+ t.L_chi23_t=t.L_chi22_t;return t[leaf]||'';
+}
+function leafReason(leaf,st){
+ const r={L_chi22_y:'結果（Y）が分類型なので、数値の回帰分析は使えません。Xも分類型なので、YとXの関係をカイ二乗検定で調べます。',L_chi23_y:'結果（Y）が分類型なので、数値の回帰分析は使えません。Xも分類型なので、YとXの関係をカイ二乗検定で調べます。',
+  L_anova3_y:'Xが3つ以上のグループなので、ダミー変数の回帰分析（3グループ以上の平均比較と同じ）になります。',L_text_r:'自由記述の質問があるので、まず内容に印をつけて分類型にします。',L_text_y:'結果（Y）が自由記述なので、まず内容に印をつけて分類型にします。',L_text_x:'Xが自由記述なので、まず内容に印をつけて分類型にします。',L_text_x2:'Xが自由記述なので、まず内容に印をつけて分類型にします。',
+  L_text_xm:'Xに自由記述が入っているので、まず内容に印をつけて、1／0の列（数値）に変えます。変えたあとは、ダミー変数を使った重回帰分析に入れられます。',
+  L_welch_t:'同じ内容を2回測っていますが、回答者が別々なので、「1回目の人たち」と「2回目の人たち」を2つのグループとして比べます。',
+  L_chi22_t:'同じ質問を2回していますが、回答者が別々なので、「時期（1回目／2回目）」と「答え」の関係をカイ二乗検定で調べます。',
+  L_chi23_t:'同じ質問を2回していますが、回答者が別々なので、「時期（1回目／2回目）」と「答え」の関係をカイ二乗検定で調べます。',
+  L_partial_c:'同じ質問を2回していますが、回答者が一部だけ重なっている（または照合できない）ので、2回とも答えた人を探して比べます。',
+  L_partial_n:'同じ内容を2回測っていますが、回答者が一部だけ重なっている（または照合できない）ので、2回とも答えた人を探して比べます。'}[leaf];
+ return r||'';
+}
+function renderResult(){
+ const leaf=state.node,L=G[leaf];let key=L.m;let h='<div class="tag">診断結果</div>';
+ const why='選んだ道筋：'+esc(pathText(state));
+ if(key==='catYmulti'){h+=catYmultiHTML(state)}
+ else if(key==='catpred'){const info=catpredInfo(state);key=info.k===3?'anova3':'welch';
+  h+=conclusion(key,state,'結果がグループ（分類型）で、もう一方が数値なので、向きを逆にして平均を比べます。<br>'+why);
+  h+=methodBody(key,state,{extra:info.intro});}
+ else{const r=leafReason(leaf,state);h+=conclusion(key,state,(r?r+'<br>':'')+why);h+=methodBody(key,state,{extra:leafExtra(leaf)})}
+ h+=`<h3>ここまでの選択</h3><details class="trail" open><summary>選んだ答えを確認</summary><ol>${state.trail.filter(t=>t.title).map(t=>'<li>'+esc(t.title)+' → '+esc(t.label||t.edge)+'</li>').join('')}</ol></details><div class="btnrow"><button class="primary" id="printRes">この結果を印刷</button></div>`;
+ return h;
+}
+
+/* ========== 画面の描画 ========== */
+const screen=document.getElementById('screen');let lockUntil=0;
+function statusBar(){
+ const v=state.vars;const parts=[];
+ const show=k=>{if(!v[k])return;const nm=state.names[k]?'「'+esc(state.names[k])+'」':'';parts.push(`<b>${{v1:state.purpose==='single'?'質問':'1つ目',v2:'2つ目',y:'結果（Y）',x:'説明（X）'}[k]}${nm}</b>：${kindName[v[k].kind]}${v[k].likert&&v[k].kind==='N'?'（段階を点数に）':''}`)};
+ ['v1','v2','y','x'].forEach(show);
+ return parts.length?`<div class="status">${parts.join('　／　')}</div>`:'';
+}
+function render(){
+ document.getElementById('back').disabled=!history.length;
+ document.querySelector('header .lead').hidden=state.node!=='start';
+ const n=G[state.node];
+ if(n.t==='leaf'){screen.innerHTML=renderResult();const pb=document.getElementById('printRes');if(pb)pb.onclick=()=>doPrint('result');const gr=document.getElementById('goRelation');if(gr)gr.onclick=()=>startRelation(true);}
+ else{
+  const title=resolve(n.title),help=resolve(n.help);
+  let h=statusBar()+`<div class="tag">ステップ ${history.length+1}${n.sub?'　<span style="font-weight:normal">（図B 質問の種類の見分け方）</span>':''}</div><h2>${esc(title)}</h2><p>${esc(help)}</p>`;
+  if(state.node==='B_how'){const k=state.sub.slot;h+=`<div class="namebox"><label for="qname">この質問の名前（書かなくてもOK。書くと結果の説明に使われます）</label><input id="qname" maxlength="30" autocomplete="off" placeholder="例：${{v1:'睡眠時間',v2:'アルバイトの有無',y:'期末テストの点数',x:'勉強時間'}[k]}" value="${esc(state.names[k]||'')}"></div>`}
+  h+=n.ch.map((c,i)=>`<button class="choice" data-i="${i}"><strong>${esc(c.label)}</strong><span>${esc(c.ex)}</span></button>`).join('');
+  screen.innerHTML=h;
+  screen.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',ev=>{if(performance.now()<lockUntil){ev.preventDefault();return}const inp=document.getElementById('qname');choose(Number(b.dataset.i),inp?inp.value:'');render();window.scrollTo(0,0)}));
+ }
+ lockUntil=performance.now()+400;
+ updateChart();
+}
+function startRelation(keep){const yn=keep?state.names.y:null;history.push(JSON.stringify(state));state=fresh();state.purpose='relation';state.trail=[{from:'start',to:'r_types',edge:'2つの関係',title:G.start.title,label:G.start.ch[1].label}];state.node='r_types';if(yn)state.names.v1=yn;settle();render();window.scrollTo(0,0)}
+document.getElementById('back').onclick=()=>{if(history.length){state=JSON.parse(history.pop());render();window.scrollTo(0,0)}};
+document.getElementById('reset').onclick=()=>{if(history.length>=2&&!confirm('ここまでの選択を消して、最初からやり直しますか？'))return;state=fresh();history=[];render();window.scrollTo(0,0)};
+
+/* ========== フローチャート ========== */
+const NW=128,LW=184,GAP=106,LH=15;
+function nodeText(id){const n=G[id];if(n.t==='leaf')return [M[n.m].title.replace(/（ダミー変数の回帰分析）/,'').replace('3グループ以上の平均比較','3グループ以上の平均比較')].map(shortLeaf);return n.chart.split('\n')}
+function shortLeaf(t){return ({'単純集計（人数と割合）':'単純集計（人数・割合）','単純集計（平均・中央値・ばらつき）':'単純集計（平均など）','内容分析（自由記述のまとめ）':'内容分析（自由記述）','クロス集計（ピボットテーブル）':'クロス集計（ピボット）','回答の変化を調べる（同じ質問を2回）':'回答の変化（前後比較）','相関係数（ピアソンの r）':'相関係数 r','対応のないt検定（Welch法）':'t検定（Welch法）','対応のないt検定（等分散を仮定）':'t検定（等分散を仮定）','ダミー変数を使った単回帰分析':'ダミー変数の単回帰','ダミー変数を使った重回帰分析':'ダミー変数の重回帰','グループを予測したいとき':'グループの予測（読み替え）','結果（Y）が分類型で、Xが2つ以上':'Yが分類・Xが複数','一部だけ同じ人の前後比較':'一部だけ同じ人の前後比較'})[t]||t}
+function boxSizeBase(id,pad=14){const n=G[id];const lines=nodeText(id);const w=(n.t==='leaf'||n.t==='out')?LW:NW;return {w,h:lines.length*LH+pad,lines}}
+function layoutTree(root,opt={}){
+ const VG=opt.vg??10,PAD=opt.pad??14;const boxSize=id=>boxSizeBase(id,PAD);
+ const nodes=[],edges=[];const memo={};
+ const H=id=>{if(memo[id]!==undefined)return memo[id];const k=kids(id);const own=boxSize(id).h;if(!k.length)return memo[id]=own;const sum=k.reduce((a,c)=>a+H(c.to),0)+VG*(k.length-1);return memo[id]=Math.max(own,sum)};
+ const place=(id,depth,top)=>{const b=boxSize(id);const k=kids(id);const x=depth*(NW+GAP);let cy;
+  if(k.length){const sum=k.reduce((a,c)=>a+H(c.to),0)+VG*(k.length-1);let t=top+(H(id)-sum)/2;const cs=[];
+   k.forEach(c=>{cs.push(place(c.to,depth+1,t));t+=H(c.to)+VG});cy=(cs[0].cy+cs[cs.length-1].cy)/2;
+   k.forEach((c,i)=>edges.push({from:id,to:c.to,label:c.edge,x1:x+b.w,y1:cy,x2:cs[i].x,y2:cs[i].cy}));}
+  else cy=top+H(id)/2;
+  nodes.push({id,x,y:cy-b.h/2,w:b.w,h:b.h,cy,lines:b.lines,t:G[id].t});return {x,cy}};
+ place(root,0,0);
+ let W=0,Hh=0;nodes.forEach(n=>{W=Math.max(W,n.x+n.w);Hh=Math.max(Hh,n.y+n.h)});
+ return {nodes,edges,W,H:Hh};
+}
+function svgOf(L,ox,oy,pref){
+ let s='';
+ L.edges.forEach(e=>{const mx=e.x1+14;s+=`<g class="ed" data-from="${e.from}" data-to="${e.to}"><path d="M${e.x1+ox},${e.y1+oy} H${mx+ox} V${e.y2+oy} H${e.x2-2+ox}" marker-end="url(#${pref}ar)"/><text x="${mx+6+ox}" y="${e.y2-5+oy}">${esc(e.label)}</text></g>`});
+ L.nodes.forEach(n=>{const cls='nd '+n.t;const x=n.x+ox,y=n.y+oy;
+  s+=`<g class="${cls}" data-id="${n.id}"${n.t==='leaf'?' tabindex="0" role="button"':''}><title>${esc(n.t==='q'?resolveStatic(G[n.id].title):n.lines.join(''))}</title><rect x="${x}" y="${y}" width="${n.w}" height="${n.h}" rx="${n.t==='leaf'?12:6}"/>${n.t==='sub'?`<rect class="inner" x="${x+5}" y="${y}" width="${n.w-10}" height="${n.h}" rx="0"/>`:''}`;
+  const ty=y+(n.h-n.lines.length*LH)/2;n.lines.forEach((ln,i)=>{s+=`<text x="${x+n.w/2}" y="${ty+LH*(i+1)-3.5}" text-anchor="middle">${esc(ln)}</text>`});s+='</g>'});
+ return s;
+}
+const resolveStatic=t=>typeof t==='function'?'（質問）の答え方はどれですか？':t;
+const defs=p=>`<defs><marker id="${p}ar" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7f9aa3"/></marker></defs>`;
+const VIEWS=[{id:'all',label:'全体図',root:'start'},{id:'single',label:'1つの質問',root:'s_type'},{id:'relation',label:'2つの関係',root:'r_types'},{id:'reg',label:'数値を説明',root:'y_type'},{id:'B',label:'図B 種類の見分け方',root:'B_how'}];
+const svgCache={};
+function buildView(v){
+ if(svgCache[v.id])return svgCache[v.id];
+ const L=layoutTree(v.root);const pad=14,top=v.id==='B'?34:pad;
+ let inner=svgOf(L,pad,top,v.id);
+ if(v.id==='B')inner=`<text class="ttl" x="${pad}" y="22">図B　質問の種類の見分け方（それぞれの質問について使います）</text>`+inner;
+ const W=L.W+pad*2,H=L.H+top+pad;
+ return svgCache[v.id]=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="system-ui,'Hiragino Sans','Noto Sans JP',sans-serif">${defs(v.id)}${inner}</svg>`;
+}
+function buildPrintSVG(){
+ const A=layoutTree('start',{vg:4,pad:8}),B=layoutTree('B_how',{vg:4,pad:8});const pad=16,gapY=46;
+ const W=Math.max(A.W,B.W)+pad*2;const H=40+A.H+gapY+B.H+pad;
+ let s=`<text class="ttl" x="${pad}" y="24" style="font-size:20px">統計分析ナビ　分析方法を選ぶフローチャート（全体図）</text>`;
+ s+=svgOf(A,pad,40,'P');
+ const by=40+A.H+gapY;s+=`<line x1="${pad}" x2="${W-pad}" y1="${by-26}" y2="${by-26}" stroke="#c5d3d8" stroke-dasharray="6 4"/><text class="ttl" x="${pad}" y="${by-8}">図B　質問の種類の見分け方（二重線の箱で、それぞれの質問について使います）</text>`;
+ s+=svgOf(B,pad,by+6,'P');
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H+6}" preserveAspectRatio="xMidYMid meet" font-family="system-ui,'Hiragino Sans','Noto Sans JP',sans-serif">${defs('P')}${s}</svg>`;
+}
+let curView=null,userView=null;
+const tabs=document.getElementById('tabs'),chartbox=document.getElementById('chartbox');
+tabs.innerHTML=VIEWS.map(v=>`<button role="tab" data-v="${v.id}" aria-selected="false">${v.label}</button>`).join('');
+tabs.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;userView=b.dataset.v;showView(userView,true)});
+function autoView(){if(state.sub)return 'B';if(!state.purpose)return 'all';return state.purpose}
+function showView(id,keepScroll){
+ curView=id;tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.v===id)));
+ chartbox.innerHTML=buildView(VIEWS.find(v=>v.id===id));paint(chartbox);
+ const cur=chartbox.querySelector('.nd.cur');
+ if(cur){const r=cur.querySelector('rect');const x=+r.getAttribute('x'),y=+r.getAttribute('y');chartbox.scrollLeft=Math.max(0,x-chartbox.clientWidth/2+80);chartbox.scrollTop=Math.max(0,y-chartbox.clientHeight/2+20)}
+}
+function paint(root){
+ const past=new Set(),taken=new Set();
+ state.trail.forEach(t=>{if(!t.inB){past.add(t.from);past.add(t.to);taken.add(t.from+'>'+t.to)}});
+ state.btrail.forEach(t=>{past.add(t.from);past.add(t.to);taken.add(t.from+'>'+t.to)});
+ const cur=new Set([mainCurrent()]);if(state.sub)cur.add(state.node);
+ root.querySelectorAll('.nd').forEach(g=>{const id=g.dataset.id;g.classList.toggle('past',past.has(id)&&!cur.has(id));g.classList.toggle('cur',cur.has(id))});
+ root.querySelectorAll('.ed').forEach(g=>g.classList.toggle('taken',taken.has(g.dataset.from+'>'+g.dataset.to)));
+}
+function updateChart(){userView=null;showView(autoView())}
+document.getElementById('fitchk').addEventListener('change',e=>{chartbox.classList.toggle('fit',e.target.checked)});
+chartbox.addEventListener('click',e=>{const g=e.target.closest('.nd.leaf');if(!g)return;openLeaf(g.dataset.id)});
+chartbox.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const g=e.target.closest('.nd.leaf');if(!g)return;e.preventDefault();openLeaf(g.dataset.id)});
+function openLeaf(id){const key=G[id].m;const useState=state.node===id;openMethod(key,useState?state:null,id)}
+
+/* ========== ダイアログ ========== */
+const dlg=document.getElementById('dlg'),dlgbody=document.getElementById('dlgbody');
+function openMethod(key,st,leaf){
+ let h;
+ if(key==='catYmulti'){h=catYmultiHTML(st)}
+ else if(key==='catpred'){const info=catpredInfo(st);
+  if(info.k){const k2=info.k===3?'anova3':'welch';h=conclusion(k2,st,'結果がグループで、もう一方が数値なので、向きを逆にして平均を比べます。')+methodBody(k2,st,{extra:info.intro,noPrep:true})}
+  else h=`<div class="concl"><div class="tag">分析方法</div><div class="m">グループの予測（読み替え）</div><p>数値から「どのグループに入るか」を予測したいときの案内です。</p></div>`+info.intro+`<div class="btnrow"><button type="button" data-open="welch">グループが2つ：Welchのt検定</button><button type="button" data-open="anova3">グループが3つ以上：3グループ以上の平均比較</button></div>`;}
+ else{const r=leaf?leafReason(leaf,st):'';h=conclusion(key,st,r)+methodBody(key,st,{noPrep:true,extra:leaf?leafExtra(leaf):''})}
+ document.getElementById('dlgtitle').textContent=M[key].title;dlgbody.innerHTML=h;
+ const gr=dlgbody.querySelector('#goRelation');if(gr){gr.onclick=()=>{dlg.close();startRelation(false)}}
+ if(!dlg.open)dlg.showModal();dlgbody.scrollTop=0;dlg.scrollTop=0;
+}
+document.getElementById('dlgclose').onclick=()=>dlg.close();
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+
+/* ========== 用語の辞書 ========== */
+const DICT={
+ '分類型':'答えがグループ名になる質問。例：居住形態（実家・一人暮らし・寮）、賛成・反対。足し算や平均には使いません。',
+ '数値型':'答えが計算できる数の質問。例：睡眠時間 6.5時間、テスト72点。平均を出せます。5段階以上の評価も点数にして数値型として扱うのが、この授業の方針です（先生の指示があればそちらを優先）。',
+ '複数回答':'いくつでも選べる質問。例：「使っているSNSをすべて選んでください」。選択肢ごとに「選んだ＝1、選ばない＝0」の列に分けて分析します。',
+ '自由記述':'文章で自由に答える質問。例：「大学生活で困っていること」。',
+ 'リッカート尺度':'「とてもそう思う〜全くそう思わない」のように、段階で答える質問の形。段階評価ともいいます。',
+ '平均':'全員の値を足して、人数で割った値。例：3人の睡眠時間が5・6・7時間なら、平均は6時間。',
+ '中央値':'値を小さい順に並べたとき、真ん中にくる値。例：5・6・20時間なら、中央値は6時間（平均は約10.3時間）。極端な値に引っ張られにくい。',
+ '標準偏差':'値が平均のまわりにどれくらい散らばっているかを表す数。小さいほど、みんなが平均に近い。',
+ '外れ値':'ほかの人から極端に離れた値。例：睡眠時間がほとんど6〜7時間なのに、1人だけ15時間。入力ミスのこともあるので確かめます。',
+ 'ピボットテーブル':'Excelの集計機能。マウスで項目をドラッグするだけで、人数や平均の表を作れます。',
+ 'クロス集計':'2つの質問を組み合わせた人数表。例：居住形態（縦）×アルバイトの有無（横）。',
+ 'コード化':'自由記述を読んで、「授業」「お金」などのテーマの印をつけること。印をつけると数えられるようになります。',
+ '検定':'「差や関係がない」と仮定したとき、今回の結果がどれくらい起こりにくいかを、確率（p値）で判断する方法。',
+ 'p値':'本当は差や関係がないと仮定したとき、今回と同じくらい、またはそれ以上に極端な結果が偶然に出る確率。0.05未満なら5％水準で有意とします。',
+ '有意':'「統計的に有意」とは、差や関係がないと仮定すると今回の結果はめったに起きない（p値が基準の0.05や0.01より小さい）という意味。例：ふつうのコインで10回中9回以上表が出る確率は約1.1％（片側）。それが起きたら「偏っているのでは？」と考えるのと同じです。「差が大きい」「重要だ」という意味ではありません。',
+ '片側検定':'「上がった」のように、一方の向きの差だけを調べる検定。このナビでは使いません。',
+ '有意水準':'p値がいくつ未満なら「有意」とするかの基準。ふつうは5％（0.05）。より厳しい1％（0.01）も使います。',
+ '期待度数':'「2つの質問に関係がない」としたら、人数表の各マスに入るはずの人数。行の合計×列の合計÷全体の人数で計算します。',
+ 'カイ二乗値':'実際の人数と期待度数のずれの大きさを、表全体でまとめた数（χ²と書きます）。大きいほどずれが大きい。',
+ 'クラメールのV':'クロス集計の2つの質問の関連の強さを、0〜1で表す数。p値とちがい、人数の多さに左右されにくい。',
+ '自由度':'レポートで「χ²(2)」「F(2,57)」のように、かっこの中に書く数。表の大きさや人数から決まります。Excelの出力表にも書かれています。',
+ 'マクネマー検定':'同じ人に同じ質問を2回したとき、答えの変化（反対→賛成、賛成→反対）の人数の差が、変化がないと仮定したときに起こりにくい差かを確かめる検定。',
+ 't検定':'2つの平均の差が、「本当は差がない」と仮定したときに起こりにくい差かどうかを、p値で確かめる検定。',
+ '対応あり':'同じ人を2回測ったデータ（授業の前と後など）。1人ひとりの差をもとに比べます。',
+ '対応なし':'別々の人のグループどうしのデータ（アルバイトをしている人／していない人など）。',
+ '両側検定':'「上がった」「下がった」のどちらの向きの差も見つけようとする検定。ふつうはこちらを使います。T.TESTの3つ目の数を2にします。',
+ 'Welch法':'2つのグループのばらつきがちがっていても使えるt検定の方法。迷ったらこれを使います。T.TESTの4つ目の数を3にします。',
+ '等分散':'2つのグループで、値のばらつき（散らばり方）が同じであること。',
+ '相関係数':'2つの数値が一緒に動く程度を−1〜＋1で表す数（r）。＋は同じ向き、−は逆向き。0に近いほど関係が弱い。',
+ '散布図':'1人を1つの点にして、横軸と縦軸に2つの数値をとったグラフ。点の並び方で関係の形がわかります。',
+ '回帰分析':'結果（Y）を、ほかの項目（X）で説明する式を作る分析。「Xが1増えるとYがいくつ増えるか」がわかります。',
+ '係数':'回帰分析で、「Xが1増えるとYがいくつ増えるか」を表す数。−なら減ります。ダミー変数の係数は「基準グループとの平均の差」。',
+ '切片':'回帰分析で、Xがすべて0のときのYの予測値。ダミー変数だけの回帰では、基準グループの平均になります。',
+ '決定係数':'R²（Excelでは「重決定 R2」）。Yの人による違いのうち、Xで説明できる割合。0〜1の数で、0.40なら40％。',
+ '補正R²':'Xの数を増やすだけでR²が上がってしまう点を調整した値（Excelでは「補正 R2」）。Xの数がちがう式どうしを比べるときに使います。説明できる割合は、R²のほうで読みます。',
+ '有意F':'回帰分析で、「Xはどれも Y と関係がない」と仮定したときに、今回と同じくらい、またはそれ以上にYを説明できる結果が出る確率（p値）。Excelでは「有意 F」。0.05未満なら式全体として有意。',
+ 'ダミー変数':'分類型の答えを0と1で表した列。例：一人暮らし＝1、それ以外＝0。グループの数より1本少なく作ります。',
+ '基準グループ':'ダミー変数を作らなかったグループ（全部の列が0になるグループ）。ほかのグループの係数は、このグループとの差を表します。',
+ '多重共線性':'回帰分析で、Xどうしが強く関係しているために、どのXの影響なのかを分けられず、係数が大きくぶれたりP-値が大きくなったりすること。Xどうしの相関係数を確かめ、強く関係する組み合わせはどちらか1つにします。',
+ 'E表記':'とても小さい（大きい）数の書き方。6.14E-08は0.0000000614のこと。「E-08」は小数点を左へ8けた動かすという意味。',
+ '多変量解析':'たくさんの項目を同時に使って、それぞれの影響をそろえながら分析する方法の総称。重回帰分析やロジスティック回帰など。',
+ 'ロジスティック回帰':'数値などから「どのグループに入るか（はい／いいえなど）」を予測する分析。Excelの標準機能では難しく、統計ソフトを使います。',
+ '分析ツール':'Excelに付いている統計の道具（アドイン）。有効にすると「データ」タブに「データ分析」が出て、回帰分析などができます。'
+};
+const tdlg=document.getElementById('termdlg');
+function openTerm(k){document.getElementById('termtitle').textContent=k;document.getElementById('termbody').innerHTML=`<p>${esc(DICT[k]||'（辞書にありません）')}</p>`;if(!tdlg.open)tdlg.showModal()}
+document.getElementById('termclose').onclick=()=>tdlg.close();
+tdlg.addEventListener('click',e=>{if(e.target===tdlg)tdlg.close()});
+document.addEventListener('click',e=>{const t=e.target.closest('.term[data-t]');if(t){e.preventDefault();openTerm(t.dataset.t);return}
+ const d=e.target.closest('[data-data]');if(d){e.preventDefault();openData();return}
+ const o=e.target.closest('[data-open]');if(o){e.preventDefault();openMethod(o.dataset.open,null)}});
+
+/* ========== 見本データ ========== */
+function csv(){const q=v=>{const s=String(v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};return '﻿'+[COLS.join(','),...ROWS.map(r=>COLS.map(c=>q(r[c])).join(','))].join('\r\n')+'\r\n'}
+function dataInfoHTML(){
+ const desc={ID:'回答者の番号','居住形態':'実家／一人暮らし／寮（分類型）','アルバイト':'あり／なし（分類型）','サークル':'加入／未加入（分類型）','Instagram':'使っているSNS（複数回答）：選んだ＝1、選ばない＝0','TikTok':'同上','YouTube':'同上','勉強時間':'1週間の勉強時間（時間、数値型）','睡眠時間':'1日の平均睡眠時間（時間、数値型）','期末テスト':'期末テストの点数（100点満点）','小テスト前':'授業前の小テスト（100点満点）','小テスト後':'授業後の小テスト（同じ学生）','授業前の賛否':'賛成／反対（授業前）','授業後の賛否':'賛成／反対（授業後、同じ質問）'};
+ return `<p>このナビの見本の数字は、架空の大学生60人のアンケート（下の列）から実際に計算したものです。CSVをダウンロードしてExcelで開き、同じ操作をすると、見本と同じ数字が出ます（1行目が見出し、2〜61行目がデータ）。</p><div class="btnrow"><button type="button" class="primary" id="dlcsv">見本データ（CSV）をダウンロード</button></div><table class="rule"><tr><th>列</th><th>見出し</th><th>中身</th></tr>${COLS.map((c,i)=>`<tr><td>${LET[i]}</td><td>${esc(c)}</td><td>${esc(desc[c]||'')}</td></tr>`).join('')}</table>`;
+}
+function openData(){document.getElementById('dlgtitle').textContent='見本データについて';dlgbody.innerHTML=dataInfoHTML();bindCsv(dlgbody);if(!dlg.open)dlg.showModal()}
+function bindCsv(root){const b=root.querySelector('#dlcsv');if(b)b.onclick=()=>{const blob=new Blob([csv()],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='survey-analysis-navi-v1.3.2-sample-data.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}}
+
+/* ========== 一覧 ========== */
+const LIST=[['1つの質問をまとめる',['single_cat','single_multi','single_num','text']],['2つの質問の関係',['cross','chi22','chi23','pairedcat','corr','paired','welch','equal','anova3','partial']],['数値を説明する',['simple','dsimple','multi','dummy']],['読み替えの案内',['catpred','catYmulti']]];
+document.getElementById('library').innerHTML='<h3>分析方法の一覧</h3>'+LIST.map(([g,ks])=>`<p><b>${g}</b></p><div class="lib">${ks.map(k=>`<button type="button" class="lnk" data-open="${k}">${M[k].title}</button>`).join('')}</div>`).join('')+'<h3>用語の辞書</h3><dl class="dict">'+Object.entries(DICT).map(([k,v])=>`<dt id="dict-${k}">${k}</dt><dd>${esc(v)}</dd>`).join('')+'</dl><h3>見本データ</h3>'+dataInfoHTML();
+bindCsv(document.getElementById('library'));
+
+/* ========== 印刷 ========== */
+const pagesize=document.getElementById('pagesize');
+function doPrint(kind){
+ if(kind==='chart'){document.getElementById('printChart').innerHTML=buildPrintSVG();paint(document.getElementById('printChart'));pagesize.textContent='@page{size:A4 landscape;margin:12mm 14mm}';document.body.classList.add('print-chart')}
+ else{pagesize.textContent='@page{size:A4 portrait;margin:14mm}';document.body.classList.remove('print-chart')}
+ setTimeout(()=>window.print(),30);
+}
+window.addEventListener('afterprint',()=>{document.body.classList.remove('print-chart');pagesize.textContent='@page{size:A4 portrait;margin:14mm}'});
+document.getElementById('printChartBtn').onclick=()=>doPrint('chart');
+
+/* 検証用（画面には出ない） */
+window.__navi={G,M,DICT,get state(){return state},load(js){state=JSON.parse(js);history=[];render()},openMethod,choose,fresh:()=>{state=fresh();history=[];render()},layoutTree,buildPrintSVG,kids,render};
+render();
+</script>
+</body>
+</html>
