@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>カイ二乗検定 計算シート</title>
+<meta name="description" content="人数を入れるだけで、適合度と独立性のカイ二乗検定を計算できるExcelシート。">
+<meta name="theme-color" content="#F7F3E8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --washi:#F7F3E8; --card:#FDFBF4; --sumi:#2B2A2C; --soft:#58554E; --keshi:#8B877B;
+  --rule:#E1D9C6; --beni:#9A2530; --beni-lt:#C0392F; --matsu:#3F6B4E; --kin:#DEBA81; --ai:#4E6186;
+  --mincho:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--washi);color:var(--sumi);font-family:var(--gothic);font-size:16px;line-height:1.8}
+.wrap{max-width:760px;margin:0 auto;padding:36px 20px 64px}
+header{text-align:center}
+h1{font-family:var(--mincho);font-weight:800;margin:0;font-size:clamp(26px,6vw,38px);letter-spacing:.1em;line-height:1.3}
+.sub{font-family:var(--mincho);color:var(--beni);margin:8px 0 0;letter-spacing:.12em;font-size:14px}
+.kasane{height:6px;margin:18px 0 0;background:linear-gradient(to right,var(--matsu) 0 22%,#FBF7EE 22% 30%,var(--kin) 30% 46%,var(--ai) 46% 54%,#FBF7EE 54% 62%,var(--beni-lt) 62% 100%)}
+.lede{font-size:15px;color:var(--soft);margin:18px 0 0;text-align:left}
+.dl{margin:26px 0 0;text-align:center}
+.dl a{display:inline-block;background:var(--matsu);color:#fff;text-decoration:none;font-weight:700;font-size:17px;
+  padding:14px 28px;border-radius:8px;box-shadow:0 3px 10px rgba(43,42,44,.15)}
+.dl a:hover{background:#345a41}
+.dl a:focus-visible{outline:3px solid var(--kin);outline-offset:3px}
+.dl p{font-size:13px;color:var(--keshi);margin:8px 0 0}
+section{margin:38px 0 0}
+h2{font-family:var(--mincho);font-size:19px;font-weight:600;margin:0 0 12px;letter-spacing:.06em;display:inline-block;border-bottom:2px solid var(--kin);padding-bottom:3px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--rule);font-size:14.5px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{white-space:nowrap;font-weight:700;width:9.5em}
+tr:last-child th,tr:last-child td{border-bottom:none}
+@media (max-width:520px){th,td{display:block;width:auto}th{border-bottom:none;padding-bottom:0}tr:last-child th{border-bottom:none}}
+ol{margin:0;padding-left:1.4em}
+ol li{margin:0 0 10px}
+.box{background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--beni-lt);border-radius:6px;padding:12px 16px;font-size:14.5px}
+.box p{margin:0}
+.box p+p{margin-top:6px}
+.small{font-size:13.5px;color:var(--soft)}
+a{color:var(--ai)}
+footer{margin:44px 0 0;padding:16px 0 0;border-top:1px solid var(--rule);font-size:12.5px;color:var(--keshi)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>カイ二乗検定 計算シート</h1>
+  <p class="sub">Excelで使う分析シート</p>
+  <div class="kasane"></div>
+  <p class="lede">アンケートの集計結果（人数）を入れるだけで、カイ二乗検定を計算できるExcelファイルです。入力ミスのチェック、p値と判定、行ごとの割合、関連の強さ（クラメールのV）、どのマスが多い・少ないか（残差分析）まで表示されます。</p>
+</header>
+
+<div class="dl">
+  <a href="chi-square-sheet-v3.1.xlsx" download="カイ二乗検定_計算シート_v3.1.xlsx">Excelファイルをダウンロード</a>
+  <p>カイ二乗検定_計算シート_v3.1.xlsx（パソコンのExcelで開きます）</p>
+</div>
+
+<section>
+  <h2>どのシートを使うか</h2>
+  <table>
+    <tr><th>適合度</th><td>1つの質問の答えの分布が、わかっている比率と合っているか。<br><span class="small">例：回答者の学年の割合が、大学全体と同じか。</span></td></tr>
+    <tr><th>独立性（2×2）</th><td>2つの質問に関連があるか。表が「行2つ×列2つ」のとき。<br><span class="small">例：性別（男性・女性）×猫の好み（好き・好きではない）</span></td></tr>
+    <tr><th>独立性（3×2）</th><td>表が「行3つ×列2つ」のとき。<br><span class="small">例：クラブ（運動系・文化系・なし）×落単（あり・なし）</span></td></tr>
+    <tr><th>独立性（2×3）</th><td>表が「行2つ×列3つ」のとき。<br><span class="small">例：高校のコース（理系・文系）×履修科目（政治学・社会学・経済学）</span></td></tr>
+  </table>
+  <p class="small">どの分析を使えばよいか迷ったら、<a href="../survey-analysis-navi/">統計分析ナビ</a>で調べられます。</p>
+</section>
+
+<section>
+  <h2>使い方</h2>
+  <ol>
+    <li>ダウンロードしたファイルをExcelで開きます。画面の上に「編集を有効にする」と出たら、押してから入力します。</li>
+    <li>表の大きさに合うシートを選び、色のついたセルに項目名と人数を入れます。該当者がいないマスには「0」を入れます（空欄のままにしない）。</li>
+    <li>結果は「入力チェック」→「期待度数の条件」→「p値と判定」→「行ごとの割合」「クラメールのV」→「残差分析」の順に見ます。</li>
+  </ol>
+  <p class="small">くわしい読み方とレポートの書き方の例は、ファイルの最初の「使い方」シートにあります。</p>
+</section>
+
+<section>
+  <h2>入力するときの注意</h2>
+  <div class="box">
+    <p>実測値には人数（0以上の整数）を入れます。「％」や「20人」のような文字は入れません。</p>
+    <p>1人の回答者は、表の1つのマスだけに数えます。いくつでも選べる質問（複数回答）は、そのままでは使えません。</p>
+    <p>「入力チェック」や「期待度数の条件」がOKにならないときは、検定結果は表示されません。表示された理由のとおりに直します。</p>
+  </div>
+</section>
+
+<footer>松林 薫　大和大学社会学部</footer>
+</div>
+</body>
+</html>
