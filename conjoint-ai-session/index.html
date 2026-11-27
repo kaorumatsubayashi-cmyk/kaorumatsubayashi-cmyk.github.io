@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>全国転勤は月給何万円分？｜コンジョイント分析 40分版 v7.5</title>
+<title>全国転勤は月給何万円分？｜コンジョイント分析 40分版 v8.1</title>
 <style>
 :root{
   --ink:#16304a;--sub:#5a6f7f;--line:#d9e3ea;--bg:#f4f6f8;--paper:#fff;
@@ -49,6 +49,7 @@ main{padding:22px 0 60px}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .stats span{background:#fff;border:1px solid #c9e3d3;border-radius:999px;padding:3px 12px;font-size:.88rem}
 .stats strong{font-size:1.05rem}
+.dlBox{margin-top:14px;background:#eff9f6;border:1.5px solid #9fc8c2;border-radius:14px;padding:16px 18px}.dlBox h3{margin:0 0 8px;font-size:1.05rem}.dlBox .sub{margin-top:8px}
 .osBox{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .osBox h3{margin:0;font-size:1.05rem}
 .osBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -176,7 +177,7 @@ svg.chart{display:block;width:100%;height:auto;margin:6px 0}
     <h1>全国転勤は、月給<em>何万円分</em>の“マイナス”？</h1>
     <p class="lead">給料は高い。でも土日出勤がある――あなたなら選びますか？ 授業のアンケートで集めた「この会社に入りたいか」の評価から、人がどの条件を、何と引き換えにしてもよいと考えているのかを、月給の金額で明らかにします。Excelの操作は、AIが1つずつ教えてくれます。</p>
     <ol class="how">
-      <li><b>1</b><span>配られたExcelを、このページに読み込む</span></li>
+      <li><b>1</b><span>Canvasの回答データを読み込み、できた分析用Excelを保存して開く</span></li>
       <li><b>2</b><span>「AIへの指示をコピー」を1回押し、Geminiに貼る</span></li>
       <li><b>3</b><span>AIと5つのステップを進める。Excelの見る場所はAIが教えてくれる</span></li>
     </ol>
@@ -186,14 +187,19 @@ svg.chart{display:block;width:100%;height:auto;margin:6px 0}
 <main class="wrap">
 
   <section class="card" id="secLoad">
-    <h2><span class="no">1</span>配られたExcelを読み込む</h2>
-    <p class="sub">Canvasからダウンロードした、コンジョイント分析のExcelファイルを選んでください。ファイルはこのパソコンの中で読み取るだけで、どこにも送信されません。</p>
+    <h2><span class="no">1</span>回答データを読み込み、分析用のExcelを用意する</h2>
+    <p class="sub">Canvasからダウンロードした、アンケートの回答データ（CSVなど）を選んでください。前にこのページで保存した分析用のExcelを選んでもかまいません。ファイルはこのパソコンの中で読み取るだけで、どこにも送信されません。</p>
     <label class="drop" id="drop">
-      <input type="file" id="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-      <span class="dropBig">ここをクリックしてExcelファイルを選ぶ</span>
+      <input type="file" id="file" accept=".csv,.tsv,.txt,.xlsx,.zip,text/csv,application/zip,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      <span class="dropBig">ここをクリックしてファイルを選ぶ</span>
       <span class="dropSmall">ファイルをここにドラッグしてもかまいません</span>
     </label>
     <div id="loadMsg" class="loadMsg" role="status" aria-live="polite"></div>
+    <div class="dlBox" id="dlBox" hidden>
+      <h3>分析用のExcelを保存して、開く</h3>
+      <button type="button" class="primary" id="dlBtn">分析用のExcelをダウンロード</button>
+      <p class="sub" id="dlNote">保存したファイルをExcelで開いてください。画面の上に黄色い帯が出たら「編集を有効にする」を押します。AIの案内は、このExcelを見ながら進みます。</p>
+    </div>
 
     <div class="osBox">
       <h3>Excelは、どこで開いていますか？</h3>
@@ -267,7 +273,7 @@ const BIG_Q='学生は、初任給がいくら高ければ、土日出勤や全�
 const REQUIRED_SHEETS=['00_はじめに','1_自分ならどっち','2_条件ごとに比べる','3_回帰で条件をそろえる','4_月給に換算','5_まとめ','計算用_12社データ','企業条件表','分析用_縦持ち','フォームの回答 1'];
 const OS_TEXT={windows:'Windows desktop Excel (Microsoft 365)',mac:'Mac desktop Excel (Microsoft 365)',web:'Excel for the web (in a browser)',unknown:'unknown — if a step depends on it, ask what the screen shows'};
 const STORE='conjoint-ai-session-v7-40min';
-let DATA=null,osChoice='unknown',helpMode=null;
+let DATA=null,GEN=null,osChoice='unknown',helpMode=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const f3=x=>(Math.round(x*1000)/1000).toFixed(3);
@@ -294,7 +300,9 @@ async function openZip(buf){
   }
   return{
     has:n=>n in files,
-    async text(name){
+    names:()=>Object.keys(files),
+    async text(name){const b=await this.bytes(name);return b==null?null:dec.decode(b);},
+    async bytes(name){
       const f=files[name];if(!f)return null;
       const start=f.off+30+dv.getUint16(f.off+26,true)+dv.getUint16(f.off+28,true);
       const raw=u8.subarray(start,start+f.csize);
@@ -305,7 +313,7 @@ async function openZip(buf){
         const st=new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
         out=new Uint8Array(await new Response(st).arrayBuffer());
       }else throw new Error('NOT_XLSX');
-      return dec.decode(out);
+      return out;
     }
   };
 }
@@ -514,18 +522,18 @@ function barChart({labels,series,max,unit}){
 
 /* ===== 40分版：5つのステップ ===== */
 const PLAN=[
- {no:'準備',min:5,title:'Excelを開いて、ここに読み込み、AIに指示を貼る',sheet:'',check:null},
+ {no:'準備',min:5,title:'回答データを読み込み、分析用Excelを保存して開き、AIに指示を貼る',sheet:'',check:null},
  {no:'1',min:5,title:'自分なら、求人PとQのどちら？',sheet:'1_自分ならどっち',
   learn:'トレードオフ（良いものを得る代わりに、何かを我慢する）を体験する',
   check:d=>`<div class="answer"><b>トレードオフ</b>＝良いもの（求人Qなら月3万円高い給与）を得る代わりに、別のもの（土日出勤）を我慢すること。</div><p>あなたの予想（Pより合計何万円高ければよいか）は、ステップ4でみんなのデータと比べます。</p>`},
  {no:'2',min:9,title:'同じデータを、2つの読み方で',sheet:'2_条件ごとに比べる',
-  learn:'会社ごとに並べる「人気投票の読み方」では理由がわからない。条件の0/1で分けて比べると、その条件だけの効果がわかる',
-  check:d=>`${barChart({labels:['土日出勤なし','土日出勤あり','全国転勤なし','全国転勤あり'],series:[{name:'グループの平均評点',vals:[d.grpAvg.wk0,d.grpAvg.wk1,d.grpAvg.tr0,d.grpAvg.tr1],color:'#2f6fa8'}],max:5,unit:'点'})}<div class="answer">人気1位は${coList(d.top)}（${f3(d.top[0].mean)}点）。でも順位だけでは理由がわからない。<br>土日出勤あり−なし：<b>${sg(d.grpAvg.wk1-d.grpAvg.wk0)}点</b>　全国転勤あり−なし：<b>${sg(d.grpAvg.tr1-d.grpAvg.tr0)}点</b></div><p>2つのグループで、初任給の平均（${f1(d.bal.wk1.sal)}万円と${f1(d.bal.wk0.sal)}万円）も休日の平均（${f1(d.bal.wk1.hol)}日と${f1(d.bal.wk0.hol)}日）もそろっているので、差はその条件だけの効果と考えられる。</p>`},
+  learn:'12社の棒グラフで人気の差を確認する。順位だけでは理由がわからないため、条件の0/1で分けて比べる',
+  check:d=>`${barChart({labels:['土日出勤なし','土日出勤あり','全国転勤なし','全国転勤あり'],series:[{name:'グループの平均評点',vals:[d.grpAvg.wk0,d.grpAvg.wk1,d.grpAvg.tr0,d.grpAvg.tr1],color:'#2f6fa8'}],max:5,unit:'点'})}<div class="answer">人気1位は${coList(d.top)}（${f3(d.top[0].mean)}点）、最下位は${coList(d.bottom)}（${f3(d.bottom[0].mean)}点）。差は約${f2(d.top[0].mean-d.bottom[0].mean)}点。ただし順位だけでは理由がわからない。<br>土日出勤あり−なし：<b>${sg(d.grpAvg.wk1-d.grpAvg.wk0)}点</b>　全国転勤あり−なし：<b>${sg(d.grpAvg.tr1-d.grpAvg.tr0)}点</b></div><p>2つのグループで、初任給の平均（${f1(d.bal.wk1.sal)}万円と${f1(d.bal.wk0.sal)}万円）も休日の平均（${f1(d.bal.wk1.hol)}日と${f1(d.bal.wk0.hol)}日）もそろっているので、差はその条件だけの効果と考えられる。</p>`},
  {no:'3',min:8,title:'回帰分析で、ほかの条件をそろえる',sheet:'3_回帰で条件をそろえる',
   learn:'回帰分析＝ほかの条件をそろえて、条件1つぶんの点数を取り出す計算',
   check:d=>`<table class="t"><tr><th></th><th>単純な比較</th><th>回帰分析</th></tr><tr><td>初任給 1万円あたり</td><td class="n">${sg(d.salSimple.per)}点</td><td class="n">${sg(d.b[1])}点</td></tr><tr><td>土日出勤（あり−なし）</td><td class="n">${sg(d.grpAvg.wk1-d.grpAvg.wk0)}点</td><td class="n">${sg(d.b[3])}点</td></tr><tr><td>全国転勤（あり−なし）</td><td class="n">${sg(d.grpAvg.tr1-d.grpAvg.tr0)}点</td><td class="n">${sg(d.b[4])}点</td></tr></table><div class="answer">給与だけちがうのは、${d.salLv.at(-1)}万円の会社のほうが休日が平均${f1(d.salSimple.holDiff)}日多く、単純な差に休日の効果が混ざっていたから。<b>回帰分析は、ほかの条件をそろえて、条件1つぶんの点数を取り出す計算。</b></div>`},
  {no:'4',min:7,key:true,title:'土日出勤・全国転勤は、月給何万円分？',sheet:'4_月給に換算',
-  learn:'条件の点数÷月給1万円あたりの点数＝月給に換算した交換レート。大きな問いの答え',
+  learn:'条件の点数を月給に換算し、グラフで3条件の負担を比較する。求人PとQにも決着をつける',
   check:d=>d.eq?`<div class="answer"><span class="big">土日出勤あり ≒ 月給 ${f2(d.eq.wk)}万円分のマイナス</span><br><span class="big">全国転勤あり ≒ 月給 ${f2(d.eq.tr)}万円分のマイナス</span></div><table class="t"><tr><th>求人</th><th>予測点</th></tr><tr><td>P（26万円・土日出勤なし）</td><td class="n">${f3(d.pq.P)}</td></tr><tr><td>Q（29万円・土日出勤あり）</td><td class="n">${f3(d.pq.Q)}</td></tr><tr><td>差（Q−P）</td><td class="n">${sg(d.pq.diff)}</td></tr></table><p>求人Qの上乗せは3万円。土日出勤の分は約${f2(d.eq.wk)}万円なので、${3>=d.eq.wk?'3万円で足りている計算です。':`3万円では${d.eq.wk-3<0.5?'わずかに':''}足りない計算です。`}</p><p class="sub">この金額は、5段階の「入りたい度」の低下を月給の上乗せで埋め合わせる計算上の金額（回帰モデルの推定値）で、実際にその金額で受け入れた人を数えたものではありません。</p>`:'<p>初任給の係数がプラスでないため、月給に換算できません。</p>'},
  {no:'5',min:6,title:'自分の言葉でまとめる',sheet:'5_まとめ',
   learn:'人気投票とのちがい・回帰分析の役割・大きな問いへの答えを、1〜2文ずつ',
@@ -538,7 +546,7 @@ function dataBlock(d){
   const means=d.cos.map(c=>`${c.name} ${f3(c.mean)}`).join(', ');
   return `# DATA IN THE STUDENT'S WORKBOOK (computed from the file the student loaded; for checking only)
 Respondents ${d.N}, ratings ${d.M}, companies ${d.K}. Profiles (salary 万円, holidays, weekend 0/1, transfer 0/1): ${prof}.
-Company averages: ${means}. Top: ${coList(d.top)}.
+Company averages: ${means}. Top: ${coList(d.top)}; bottom: ${coList(d.bottom)}; top-to-bottom difference: ${f3(d.top[0].mean-d.bottom[0].mean)} points.
 Sheet 2: weekend 0 → ${f3(d.grpAvg.wk0)}, weekend 1 → ${f3(d.grpAvg.wk1)}, difference C23 = ${f3(d.grpAvg.wk1-d.grpAvg.wk0)}; transfer 0 → ${f3(d.grpAvg.tr0)}, transfer 1 → ${f3(d.grpAvg.tr1)}, difference C29 = ${f3(d.grpAvg.tr1-d.grpAvg.tr0)}. Both groups have equal average salary and holidays (D23, E23 = 0).
 Sheet 3: salary groups ${d.salLv.at(-1)} vs ${d.salLv[0]}万円: ${f3(d.salSimple.hi)} vs ${f3(d.salSimple.lo)}, per 1万円 C9 = ${f3(d.salSimple.per)}, holiday difference D8 = ${f1(d.salSimple.holDiff)} days. Regression B13 baseline ${f3(d.b[0])}, B14 salary ${f3(d.b[1])}, B15 holidays per 10 days ${f3(d.b[2])}, B16 weekend ${f3(d.b[3])}, B17 transfer ${f3(d.b[4])}.
 Sheet 4: ${d.eq?`D5 weekend ${f2(d.eq.wk)}万円, D6 transfer ${f2(d.eq.tr)}万円, D7 10 fewer holidays ${f2(d.eq.hol10)}万円`:'no salary equivalents'}; D12 P ${f3(d.pq.P)}, D13 Q ${f3(d.pq.Q)}, D14 Q−P ${f3(d.pq.diff)}.
@@ -552,7 +560,7 @@ You are a friendly tutor who speaks Japanese to a university student who is new 
 「${BIG_Q}」
 
 # TIME LIMIT — THIS MATTERS MOST
-The AI session must end in about 35 minutes (the 5 minutes of setup are already over); the teacher keeps the time and may tell the class to move on. It is about 16 replies from you in total: step 1 three, step 2 four, step 3 four, step 4 three, step 5 two. Follow the reply budget of each step. Keep every reply to 2–4 short Japanese sentences. Do not ask 「できましたか？」; instead ask a question that checks understanding. If an answer is incomplete or wrong, give the key idea in ONE sentence and move on — never loop more than once on the same point. Do not add extra explanations, extra examples or long lists.
+The AI session must end in about 35 minutes (the 5 minutes of setup are already over); the teacher keeps the time and may tell the class to move on. It is about 18 replies from you in total: step 1 three, step 2 five, step 3 four, step 4 four, step 5 two. Two of these are important GRAPH-COMPARISON interactions, not optional reading instructions. If a student finishes earlier than expected, use the saved time for these two graph questions, not extra unrelated explanations. Follow the reply budget of each step. Keep every reply to 2–4 short Japanese sentences. Do not ask 「できましたか？」; instead ask a question that checks understanding. If an answer is incomplete or wrong, give the key idea in ONE sentence and move on — never loop more than once on the same point. Do not add extra explanations, extra examples or long lists.
 If the student writes 「ステップ◯に進んで」 (the teacher's signal) or says there is no time, give the key idea of the current step in ONE sentence and start the student-requested step immediately (the step number the student wrote; if no number was given, the next step). If that skips step 1, use 3万円 as the comparison in step 4 instead of the student's guess.
 
 # EACH REPLY
@@ -560,9 +568,9 @@ At most ONE Excel instruction (which sheet, which cells to look at or type in) a
 
 # THE 5 STEPS (run them in this order in this chat; say 「ステップ◯」 when a new step begins)
 Step 1 — 1_自分ならどっち (≈3 replies). Reply 1: the big question in one sentence; ask the student to open the sheet 「1_自分ならどっち」 (if a yellow Protected View bar appears, first click 「編集を有効にする」), look at offers P and Q in A4:C9, choose P or Q in the yellow B12 (▼) and say why in a few words. Reply 2: ask for B13 — in TOTAL, how many 万円 higher than P must Q's salary be for them to accept weekend work (Q is already 3万円 higher; it is a total, not an extra amount on top of 29万円). Reply 3: name what they just did: トレードオフ (A15), in one sentence using their own answer; then start step 2.
-Step 2 — 2_条件ごとに比べる (4 replies). ① Start with ONE sentence on what the data is: 「社会学部生{N}人に、給与・休日・土日出勤・全国転勤の条件がちがう架空の{K}社について、入社したい度合いを1〜5点で評価してもらったデータです。」 Then ask ONLY: in A5:G17 (the chart is further down, around row 33), which company is No.1? ② Explain in ONE sentence that the No.1 company is good in several conditions at once, so the ranking alone cannot tell WHICH condition made it popular — this is 人気投票の読み方. Then: rows 19–23 split the companies by 土日出勤 0/1 (0 = なし, 1 = あり; a marker, not a score). Ask ONLY for a quick prediction: which group is rated higher? ③ Ask the student to read C21:C22 and D21:E22 and say what they notice about salary and holidays (the same in both groups). ④ C23 is the effect of weekend work alone, because other conditions are equal; A31: the 12 companies were designed this way (属性 = kinds of conditions, 水準 = their choices). In the same reply, mention in ONE sentence (no question) that rows 25–29 show the same for nationwide transfer (C29). Ask: what does C23 tell us?
+Step 2 — 2_条件ごとに比べる (5 replies). ① Start with ONE sentence on what the data is: 「社会学部生{N}人に、給与・休日・土日出勤・全国転勤の条件がちがう架空の{K}社について、入社したい度合いを1〜5点で評価してもらったデータです。」 In the table A5:G17, ask ONLY: which company is No.1? ② GRAPH COMPARISON (mandatory): In the SAME sheet, tell the student to scroll DOWN to the bar chart 「①のグラフ：12社の平均評点」 (starting around row 34). Ask this ONE question in simple Japanese: 「12社の棒を見て、いちばん高い棒といちばん低い棒では何点くらい差がありますか？」 Wait for their observation. Accept an approximate reading from the chart; compare it with the top-to-bottom difference in DATA (an answer within about 0.5 points is fine). Do not state the gap or the lowest-rated company before the student has answered. ③ Explain in ONE sentence that the graph shows WHICH companies are popular, but not WHY: one company combines several conditions, so the height of a bar cannot isolate a single condition — this is 人気投票の読み方. Return to rows 19–23, which split companies by 土日出勤 0/1 (0 = なし, 1 = あり; a marker, not a score). Ask ONLY for a prediction: which group is rated higher? ④ Ask the student to read C21:C22 and D21:E22 and say what they notice about salary and holidays (the same in both groups). ⑤ C23 is the effect of weekend work alone, because other conditions are equal; A31: the 12 companies were designed this way (属性 = kinds of conditions, 水準 = their choices). In the same reply, mention in ONE sentence (no question) that rows 25–29 show the same for nationwide transfer (C29). Ask: what does C23 tell us?
 Step 3 — 3_回帰で条件をそろえる (≈4 replies). ① C9 and D8: salary groups 29 vs 23万円 give a simple per-1万円 value, but their holidays differ — ask what problem that causes (the holiday effect is mixed in). ② B14: regression's value per 1万円 with other conditions held equal; why is it different from C9? ③ A20:D23: weekend and transfer are 「同じ」 — why? (those groups were already balanced). ④ A25: the prediction formula; 0/1 works as a switch (×1 adds the points, ×0 removes them). Ask the student to say in their own words what regression does: ほかの条件をそろえて、条件1つぶんの点数を取り出す計算.
-Step 4 — 4_月給に換算 (≈3 replies). NEVER state or hint at any 万円 amount before the student reads it. ① D5 and D6: points lost ÷ points per 1万円 = 万円; ask the student to answer the big question in one sentence. ② Point to D12:D14 (Q − P) and D15 (their own guess, also a total over P). Give ONE task: 「求人Qの3万円で土日出勤の分は足りたか、自分の予想（D15）と比べて一文で答えてください。」 Neither the student's guess nor the class average is wrong; they can differ. ③ A8: say in one or two sentences what the amount means — the salary premium that offsets the drop in the 1–5 "want to join" rating within the regression model, an estimate, not an amount people were observed to accept — and in the same reply start step 5 (no question about A8).
+Step 4 — 4_月給に換算 (≈4 replies). NEVER state or hint at any 万円 amount before the student reads D5/D6. ① D5 and D6: points lost ÷ points per 1万円 = 万円; ask the student to answer the big question in one sentence. ② GRAPH COMPARISON (mandatory): In the SAME sheet, tell the student to scroll DOWN to the bar chart 「月給に換算すると（万円）」 (starting around row 17). It shows the three conditions: weekend work, nationwide transfer, and 10 fewer annual holidays, all in the SAME unit 万円. Ask ONE question: 「3本の棒を比べて、月給で補う負担が最も大きい条件を答えてください。」 Wait for their observation, then confirm in ONE sentence which bar is the longest according to D5–D7 in DATA; if the three amounts are within about 0.5万円 of each other, add that they are close. ③ Point to D12:D14 (Q − P) and D15 (their own guess, also a total over P). Give ONE task: 「求人Qの3万円で土日出勤の分は足りたか、自分の予想（D15）と比べて一文で答えてください。」 Neither the student's guess nor the class average is wrong; they can differ. ④ A8: say in one or two sentences what the amount means — the salary premium that offsets the drop in the 1–5 "want to join" rating within the regression model, an estimate, not an amount people were observed to accept — and in the same reply start step 5 (no question about A8).
 Step 5 — 5_まとめ (≈2 replies). ① Ask the student to write 1–2 sentences in each yellow cell C5, C6, C7 of 「5_まとめ」 and then paste all three here. ② Give ONE short comment on each (one sentence each, in one reply), then end with: 「これで全ステップ完了です。おつかれさまでした。」
 
 # HONESTY
@@ -601,10 +609,11 @@ function renderPlan(){
   const d=DATA;let acc=0;
   $('plan').innerHTML=PLAN.map((p,i)=>{const from=acc;acc+=p.min;
     return `<li class="step ${p.key?'key':''}"><div class="sh"><span class="sn">${p.no==='準備'?'準備':'ステップ'+p.no}</span><span class="st2">${esc(p.title)}</span><span class="sm">${from}〜${acc}分</span></div>${p.sheet?`<div class="sd"><span class="chip">${esc(p.sheet)}</span>${esc(p.learn)}</div>`:''}${p.check?`<details class="check"><summary>答え合わせ <small>Excelで自分の答えを出してから開く</small></summary><div class="dBody">${d?p.check(d):'<p>Excelを読み込むと表示されます。</p>'}</div></details>`:''}</li>`;}).join('');
-  $('copyMain').disabled=!d;
-  $('needLoad').textContent=d?'':NEED_TEXT();
-  $('needLoad').hidden=!!d;
-  $('helpCopy').disabled=!d;
+  const ready=!!d&&!(GEN&&!GEN.saved);
+  $('copyMain').disabled=!ready;
+  $('needLoad').textContent=ready?'':(d?'先に「1」の「分析用のExcelをダウンロード」を押して保存し、そのExcelを開いてください。':NEED_TEXT());
+  $('needLoad').hidden=ready;
+  $('helpCopy').disabled=!ready;
 }
 function renderOs(){document.querySelectorAll('#osBtns button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.os===osChoice)));}
 
@@ -619,59 +628,434 @@ async function copyText(text){
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.tm);toast.tm=setTimeout(()=>t.classList.remove('show'),2600);}
 
 
+/* ===== アンケートの生データ（Googleフォーム）から分析用Excelを作る ===== */
+const CO_LETTERS='ABCDEFGHIJKL'.split('');
+const MAX_PEOPLE=1000;
+const b64ToBytes=s=>{const bin=atob(s);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;};
+const zen2han=s=>String(s).replace(/[０-９Ａ-Ｚａ-ｚ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+const xesc=s=>String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const xunesc=s=>s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#(\d+);/g,(m,d)=>String.fromCodePoint(+d)).replace(/&#x([0-9a-f]+);/gi,(m,h)=>String.fromCodePoint(parseInt(h,16))).replace(/&amp;/g,'&');
+const colName=n=>{let s='';while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;};
+
+/* --- 文字コード（UTF-8／Shift_JIS）を判定してCSVを読む --- */
+function decodeText(u8){
+  let s=null;
+  try{s=new TextDecoder('utf-8',{fatal:true}).decode(u8);}catch(e){}
+  if(s===null){try{s=new TextDecoder('shift_jis').decode(u8);}catch(e){s=new TextDecoder('utf-8').decode(u8);}}
+  return s.replace(/^﻿/,'');
+}
+function parseCSV(text){
+  const rows=[];let row=[],f='',q=false;
+  const sep=(text.split('\n')[0].split('\t').length>text.split('\n')[0].split(',').length)?'\t':',';
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}else f+=ch;continue;}
+    if(ch==='"'&&f===''){q=true;continue;}
+    if(ch===sep){row.push(f);f='';continue;}
+    if(ch==='\r')continue;
+    if(ch==='\n'){row.push(f);rows.push(row);row=[];f='';continue;}
+    f+=ch;
+  }
+  if(f!==''||row.length){row.push(f);rows.push(row);}
+  return rows;
+}
+/* --- xlsxのシートを2次元の表にする --- */
+function cellsToTable(cells){
+  const t=[];let maxC=0;
+  for(const ref in cells){const r=rowIndex(ref),c=colIndex(ref);(t[r-1]=t[r-1]||[])[c-1]=cells[ref];if(c>maxC)maxC=c;}
+  for(let i=0;i<t.length;i++){t[i]=t[i]||[];for(let j=0;j<maxC;j++)if(t[i][j]===undefined)t[i][j]=null;}
+  return t;
+}
+
+/* --- 表から回答を取り出す（タイムスタンプ・メールアドレスなどは捨てる） --- */
+function rating(v){
+  if(v==null)return null;
+  if(typeof v==='number')return (Number.isInteger(v)&&v>=1&&v<=5)?v:undefined;
+  const s=zen2han(String(v)).trim();if(s==='')return null;
+  const m=/^([1-5])(?:\.0+)?\s*(?:$|[（(：:・\s-])/.exec(s);return m?+m[1]:undefined;
+}
+function extractResponses(table){
+  let hr=table.findIndex(r=>r&&r.some(v=>typeof v==='string'&&/企業\s*[A-LＡ-Ｌ]/.test(zen2han(v))));
+  const head=hr>=0?table[hr].map(v=>v==null?'':zen2han(String(v)).trim()):null;
+  let coCol={};
+  if(head){head.forEach((h,i)=>{const m=/企業\s*([A-L])(?![A-Za-z])/.exec(h);if(m&&!(m[1] in coCol))coCol[m[1]]=i;});}
+  if(Object.keys(coCol).length!==12){
+    // 見出しに企業名がない場合：1〜5の数字だけが入っている列が12列あれば、左から企業A〜Lとみなす
+    hr=0;const body=table.slice(1);const cand=[];
+    (table[0]||[]).forEach((h,i)=>{const vals=body.map(r=>r[i]).filter(v=>v!=null&&String(v).trim()!=='');if(vals.length&&vals.filter(v=>rating(v)>0).length/vals.length>=0.9)cand.push(i);});
+    if(cand.length!==12)throw Object.assign(new Error('RAW_COLUMNS'),{found:Object.keys(coCol).length||cand.length});
+    coCol={};cand.forEach((c,k)=>coCol[CO_LETTERS[k]]=c);
+  }
+  const hd=(table[hr]||[]).map(v=>v==null?'':zen2han(String(v)).trim());
+  const isCo=i=>Object.values(coCol).includes(i);
+  const yrC=hd.findIndex((h,i)=>!isCo(i)&&/学年/.test(h));
+  const flagC=hd.findIndex((h,i)=>!isCo(i)&&/4年.*決定|決定済/.test(h));
+  const stC=hd.findIndex((h,i)=>!isCo(i)&&i!==flagC&&/就職|決定|内定|進路/.test(h));
+  const out=[];let bad=0;
+  for(const r of table.slice(hr+1)){
+    if(!r)continue;
+    const rs=CO_LETTERS.map(L=>rating(r[coCol[L]]));
+    bad+=rs.filter(v=>v===undefined).length;
+    const ys=rs.map(v=>v===undefined?null:v);
+    if(ys.every(v=>v==null))continue;
+    const grade=yrC>=0&&r[yrC]!=null?zen2han(String(r[yrC])).trim():'';
+    let flag=0;
+    if(flagC>=0){flag=(+r[flagC]===1)?1:0;}
+    else if(stC>=0){const s=r[stC]==null?'':String(r[stC]);flag=(/4/.test(grade)&&/決定している|決まっている|決定済|決まった|内定/.test(s)&&!/まだ|決まっていない|未定|していない|未決定/.test(s))?1:0;}
+    out.push({grade,flag,ys});
+  }
+  if(out.length>MAX_PEOPLE)throw Object.assign(new Error('RAW_TOO_MANY'),{n:out.length});
+  if(out.length<3)throw new Error('RAW_EMPTY');
+  return {rows:out,bad};
+}
+
+/* --- 小さな数式エンジン（ひな形の数式だけを計算する） --- */
+function makeEngine(sheets){
+  // sheets: name -> Map(ref -> {f:string|null, v:any})
+  const ERR=e=>({err:e});const isErr=v=>v&&typeof v==='object'&&'err' in v;
+  const memo=new Map(),busy=new Set();
+  function cellVal(sh,r,c){
+    const m=sheets[sh];if(!m)return ERR('#REF!');
+    const ref=colName(c)+r;const cell=m.get(ref);if(!cell)return null;
+    if(cell.f==null)return cell.v;
+    const key=sh+'!'+ref;if(memo.has(key))return memo.get(key);
+    if(busy.has(key))return ERR('#CIRC!');busy.add(key);
+    let v;try{v=evalFormula(cell.f,sh,r);}catch(e){v=ERR('#VALUE!');}
+    busy.delete(key);memo.set(key,v);return v;
+  }
+  function tokenize(s){
+    const t=[];let i=0;
+    while(i<s.length){
+      const ch=s[i];
+      if(ch===' '){i++;continue;}
+      if(ch==='"'){let j=i+1,str='';while(j<s.length){if(s[j]==='"'){if(s[j+1]==='"'){str+='"';j+=2;continue;}break;}str+=s[j++];}t.push({k:'str',v:str});i=j+1;continue;}
+      let m;
+      const rest=s.slice(i);
+      if((m=/^(?:'((?:[^']|'')+)'|([^\s'!(),:+\-*\/&=<>"]+))!/.exec(rest))){
+        const sh=(m[1]!=null?m[1].replace(/''/g,"'"):m[2]);i+=m[0].length;
+        const r2=s.slice(i);let mm;
+        if((mm=/^\$?([A-Z]{1,3})\$?(\d+)(?::\$?([A-Z]{1,3})\$?(\d+))?/.exec(r2))){t.push({k:'ref',sh,c1:colIndex(mm[1]),r1:+mm[2],c2:colIndex(mm[3]||mm[1]),r2:+(mm[4]||mm[2])});i+=mm[0].length;continue;}
+        if((mm=/^\$?([A-Z]{1,3}):\$?([A-Z]{1,3})/.exec(r2))){t.push({k:'ref',sh,c1:colIndex(mm[1]),r1:1,c2:colIndex(mm[2]),r2:20000});i+=mm[0].length;continue;}
+        throw new Error('ref');
+      }
+      if((m=/^\$?([A-Z]{1,3})\$?(\d+)(?::\$?([A-Z]{1,3})\$?(\d+))?(?![A-Za-z0-9_(])/.exec(rest))){t.push({k:'ref',sh:null,c1:colIndex(m[1]),r1:+m[2],c2:colIndex(m[3]||m[1]),r2:+(m[4]||m[2])});i+=m[0].length;continue;}
+      if((m=/^\$?([A-Z]{1,3}):\$?([A-Z]{1,3})(?![A-Za-z0-9_(])/.exec(rest))){t.push({k:'ref',sh:null,c1:colIndex(m[1]),r1:1,c2:colIndex(m[2]),r2:20000});i+=m[0].length;continue;}
+      if((m=/^(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/.exec(rest))){t.push({k:'num',v:+m[1]});i+=m[0].length;continue;}
+      if((m=/^([A-Za-z_][A-Za-z0-9_.]*)\s*\(/.exec(rest))){t.push({k:'fn',v:m[1].toUpperCase()});i+=m[0].length;continue;}
+      if((m=/^(TRUE|FALSE)(?![A-Za-z0-9_])/i.exec(rest))){t.push({k:'bool',v:m[1].toUpperCase()==='TRUE'});i+=m[0].length;continue;}
+      if((m=/^(<>|<=|>=|[-+*\/&=<>^(),:])/.exec(rest))){t.push({k:'op',v:m[1]});i+=m[0].length;continue;}
+      throw new Error('tok '+rest.slice(0,10));
+    }
+    return t;
+  }
+  function evalFormula(f,curSh,curRow){
+    const t=tokenize(f);let p=0;
+    const peek=()=>t[p],next=()=>t[p++];
+    const expect=v=>{const x=next();if(!x||x.v!==v)throw new Error('expect '+v);};
+    const num=v=>{v=scalar(v);if(isErr(v))return v;if(v==null)return 0;if(typeof v==='boolean')return v?1:0;if(typeof v==='number')return v;const n=Number(v);return (v!==''&&!isNaN(n))?n:ERR('#VALUE!');};
+    const scalar=v=>{if(v&&v.k==='range'){if(v.r1===v.r2&&v.c1===v.c2)return cellVal(v.sh,v.r1,v.c1);return ERR('#VALUE!');}if(v&&v.arr)return v.arr[0][0];return v;};
+    const str=v=>{v=scalar(v);if(v==null)return '';if(typeof v==='boolean')return v?'TRUE':'FALSE';if(typeof v==='number')return String(+v.toPrecision(15));return String(v);};
+    function cmp(a,b,op){
+      a=scalar(a);b=scalar(b);if(isErr(a))return a;if(isErr(b))return b;
+      const norm=x=>x==null?null:x;a=norm(a);b=norm(b);
+      if(a==null)a=(typeof b==='string')?'':(typeof b==='boolean'?false:0);
+      if(b==null)b=(typeof a==='string')?'':(typeof a==='boolean'?false:0);
+      const rank=x=>typeof x==='number'?0:typeof x==='string'?1:2;
+      let c;
+      if(rank(a)!==rank(b))c=rank(a)-rank(b);
+      else if(typeof a==='string'){const x=a.toLowerCase(),y=b.toLowerCase();c=x<y?-1:x>y?1:0;}
+      else c=(a<b?-1:a>b?1:0);
+      return {'=':c===0,'<>':c!==0,'<':c<0,'>':c>0,'<=':c<=0,'>=':c>=0}[op];
+    }
+    function primary(){
+      const x=next();if(!x)throw new Error('eof');
+      if(x.k==='num')return x.v;
+      if(x.k==='str')return x.v;
+      if(x.k==='bool')return x.v;
+      if(x.k==='ref')return {k:'range',sh:x.sh||curSh,r1:x.r1,c1:x.c1,r2:x.r2,c2:x.c2};
+      if(x.k==='op'&&x.v==='('){const v=expr();expect(')');return v;}
+      if(x.k==='op'&&x.v==='-'){const v=num(unary());return isErr(v)?v:-v;}
+      if(x.k==='op'&&x.v==='+')return num(unary());
+      if(x.k==='fn'){
+        const args=[];
+        if(!(peek()&&peek().v===')')){
+          for(;;){
+            if(peek()&&(peek().v===','||peek().v===')'))args.push(undefined);
+            else args.push(expr());
+            if(peek()&&peek().v===','){next();continue;}break;
+          }
+        }
+        expect(')');
+        return callFn(x.v,args,curRow);
+      }
+      throw new Error('bad token');
+    }
+    function unary(){return primary();}
+    function power(){let a=unary();while(peek()&&peek().v==='^'){next();const b=num(unary());const x=num(a);a=isErr(x)?x:isErr(b)?b:Math.pow(x,b);}return a;}
+    function term(){let a=power();while(peek()&&(peek().v==='*'||peek().v==='/')){const op=next().v;const b=num(power());const x=num(a);if(isErr(x)){a=x;continue;}if(isErr(b)){a=b;continue;}a=op==='*'?x*b:(b===0?ERR('#DIV/0!'):x/b);}return a;}
+    function additive(){let a=term();while(peek()&&(peek().v==='+'||peek().v==='-')){const op=next().v;const b=num(term());const x=num(a);if(isErr(x)){a=x;continue;}if(isErr(b)){a=b;continue;}a=op==='+'?x+b:x-b;}return a;}
+    function concat(){let a=additive();while(peek()&&peek().v==='&'){next();const b=additive();const x=scalar(a),y=scalar(b);if(isErr(x)){a=x;continue;}if(isErr(y)){a=y;continue;}a=str(x)+str(y);}return a;}
+    function expr(){let a=concat();while(peek()&&['=','<>','<','>','<=','>='].includes(peek().v)){const op=next().v;const b=concat();a=cmp(a,b,op);}return a;}
+    function vals(rg){const out=[];for(let r=rg.r1;r<=rg.r2;r++)for(let c=rg.c1;c<=rg.c2;c++)out.push(cellVal(rg.sh,r,c));return out;}
+    function crit(c){
+      c=scalar(c);
+      if(typeof c==='number')return v=>typeof v==='number'&&v===c;
+      if(typeof c==='boolean')return v=>v===c;
+      const s=c==null?'':String(c);const m=/^(<>|<=|>=|<|>|=)?(.*)$/.exec(s);const op=m[1]||'=',rhs=m[2];
+      const n=Number(rhs);const numeric=rhs!==''&&!isNaN(n);
+      return v=>{
+        if(numeric){if(typeof v!=='number')return op==='<>';return {'=':v===n,'<>':v!==n,'<':v<n,'>':v>n,'<=':v<=n,'>=':v>=n}[op];}
+        const vs=v==null?'':String(v).toLowerCase(),r=rhs.toLowerCase();
+        if(op==='=')return r===''?(v==null||v===''):vs===r;
+        if(op==='<>')return r===''?!(v==null||v===''):vs!==r;
+        return false;
+      };
+    }
+    function callFn(name,a,row){
+      const R=x=>x&&x.k==='range'?x:null;
+      switch(name){
+        case 'IF':{const c=scalar(a[0]);if(isErr(c))return c;const tr=typeof c==='number'?c!==0:typeof c==='string'?(()=>{throw new Error('if')})():!!c;return tr?(a[1]===undefined?true:scalar(a[1])):(a.length>2?(a[2]===undefined?false:scalar(a[2])):false);}
+        case 'IFERROR':{const v=scalar(a[0]);return isErr(v)?scalar(a[1]):v;}
+        case 'ABS':{const v=num(a[0]);return isErr(v)?v:Math.abs(v);}
+        case 'INT':{const v=num(a[0]);return isErr(v)?v:Math.floor(v);}
+        case 'MOD':{const x=num(a[0]),y=num(a[1]);if(isErr(x))return x;if(isErr(y))return y;if(y===0)return ERR('#DIV/0!');return x-y*Math.floor(x/y);}
+        case 'ROW':{return a[0]&&R(a[0])?R(a[0]).r1:row;}
+        case 'COUNT':{let n=0;a.forEach(x=>{if(R(x))vals(x).forEach(v=>{if(typeof v==='number')n++;});else if(typeof scalar(x)==='number')n++;});return n;}
+        case 'COUNTIF':{const f=crit(a[1]);return vals(a[0]).filter(f).length;}
+        case 'COUNTIFS':{const lists=[],fs=[];for(let i=0;i<a.length;i+=2){lists.push(vals(a[i]));fs.push(crit(a[i+1]));}let n=0;for(let k=0;k<lists[0].length;k++)if(lists.every((l,j)=>fs[j](l[k])))n++;return n;}
+        case 'SUMIF':{const f=crit(a[1]);const c=vals(a[0]),s=vals(a[2]||a[0]);let t=0;c.forEach((v,k)=>{if(f(v)&&typeof s[k]==='number')t+=s[k];});return t;}
+        case 'AVERAGEIF':{const f=crit(a[1]);const c=vals(a[0]),s=vals(a[2]||a[0]);let t=0,n=0;c.forEach((v,k)=>{if(f(v)&&typeof s[k]==='number'){t+=s[k];n++;}});return n?t/n:ERR('#DIV/0!');}
+        case 'RANK':{const x=num(a[0]);if(isErr(x))return x;const vs=vals(a[1]).filter(v=>typeof v==='number');if(!vs.includes(x))return ERR('#N/A');const asc=a[2]!==undefined&&num(a[2])!==0;return 1+vs.filter(v=>asc?v<x:v>x).length;}
+        case 'LINEST':{
+          const ys=vals(a[0]);const X=R(a[1]);const k=X.c2-X.c1+1,n=X.r2-X.r1+1;
+          if(ys.some(v=>typeof v!=='number'))return ERR('#VALUE!');
+          const rows=[];for(let r=0;r<n;r++){const rr=[1];for(let c=0;c<k;c++){const v=cellVal(X.sh,X.r1+r,X.c1+c);if(typeof v!=='number')return ERR('#VALUE!');rr.push(v);}rows.push(rr);}
+          const m=k+1;const A=[...Array(m)].map((_,i)=>[...Array(m)].map((_,j)=>rows.reduce((s,r)=>s+r[i]*r[j],0)));
+          const bb=[...Array(m)].map((_,i)=>rows.reduce((s,r,q)=>s+r[i]*ys[q],0));
+          const sol=solve(A,bb);if(!sol)return ERR('#NUM!');
+          return {arr:[[...sol.slice(1).reverse(),sol[0]]]};
+        }
+        case 'INDEX':{
+          const src=a[0];const r=a[1]===undefined?1:num(a[1]);const c=a[2]===undefined?1:num(a[2]);
+          if(isErr(r))return r;if(isErr(c))return c;
+          if(src&&src.arr){const v=(src.arr[r-1]||[])[c-1];return v===undefined?ERR('#REF!'):v;}
+          if(isErr(src))return src;
+          const rg=R(src);if(!rg)return ERR('#VALUE!');
+          const single=rg.r1===rg.r2&&a[2]===undefined;
+          const rr=single?rg.r1:rg.r1+r-1,cc=single?rg.c1+r-1:rg.c1+c-1;
+          if(rr>rg.r2||cc>rg.c2)return ERR('#REF!');
+          return cellVal(rg.sh,rr,cc);
+        }
+      }
+      throw new Error('fn '+name);
+    }
+    const v=expr();if(p!==t.length)throw new Error('trailing');
+    return scalar(v);
+  }
+  return {cellVal,ERR,isErr};
+}
+
+/* --- ZIPを書く（無圧縮。Excelはこれで開ける） --- */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+const crc32=u=>{let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC_T[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;};
+function writeZip(entries){
+  const enc=new TextEncoder();const parts=[];const central=[];let off=0;
+  for(const e of entries){
+    const name=enc.encode(e.name);const data=typeof e.data==='string'?enc.encode(e.data):e.data;const crc=crc32(data);
+    const h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,0,true);h.setUint16(12,0x5C21,true);
+    h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,name.length,true);h.setUint16(28,0,true);
+    parts.push(new Uint8Array(h.buffer),name,data);
+    const c=new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,0,true);c.setUint16(14,0x5C21,true);
+    c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,name.length,true);c.setUint32(42,off,true);
+    central.push(new Uint8Array(c.buffer),name);
+    off+=30+name.length+data.length;
+  }
+  const cdSize=central.reduce((s,u)=>s+u.length,0);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,entries.length,true);end.setUint16(10,entries.length,true);end.setUint32(12,cdSize,true);end.setUint32(16,off,true);
+  const all=[...parts,...central,new Uint8Array(end.buffer)];
+  const out=new Uint8Array(all.reduce((s,u)=>s+u.length,0));let p=0;all.forEach(u=>{out.set(u,p);p+=u.length;});
+  return out;
+}
+
+/* --- ひな形に回答を入れ、数式の答えとグラフの表示用データを書き込む --- */
+async function buildWorkbook(resp){
+  const zip=await openZip(b64ToBytes(TEMPLATE_B64).buffer);
+  const names=zip.names();
+  const files={};for(const n of names)files[n]=await zip.text(n);
+  const rels={};files['xl/_rels/workbook.xml.rels'].replace(/<Relationship\b[^>]*>/g,tag=>{const id=/Id="([^"]+)"/.exec(tag)[1],t=/Target="([^"]+)"/.exec(tag)[1];rels[id]=t.startsWith('/')?t.slice(1):'xl/'+t.replace(/^\.\//,'');return tag;});
+  const path={};files['xl/workbook.xml'].replace(/<sheet\b[^>]*>/g,tag=>{const nm=xunesc(/name="([^"]+)"/.exec(tag)[1]);const id=/r:id="([^"]+)"/.exec(tag)[1];path[nm]=rels[id];return tag;});
+  const cellRe=/<c r="([A-Z]+)(\d+)"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+  // 企業条件表
+  const cond={};const condXml=files[path['企業条件表']];
+  const condCells={};condXml.replace(cellRe,(m,c,r,attrs,inner)=>{condCells[c+r]=litVal(attrs,inner);return m;});
+  for(let r=2;r<=13;r++){const L=condCells['A'+r];cond[L]=[condCells['B'+r],condCells['C'+r],condCells['D'+r],condCells['E'+r]];}
+  function litVal(attrs,inner){
+    if(!inner)return null;const t=(/\bt="([^"]+)"/.exec(attrs)||[])[1];
+    if(t==='inlineStr'){return xunesc(((inner.match(/<t[^>]*>([\s\S]*?)<\/t>/g)||[]).map(x=>x.replace(/<[^>]+>/g,'')).join('')));}
+    const v=/<v>([\s\S]*?)<\/v>/.exec(inner);if(!v)return null;
+    if(t==='s')return null; if(t==='str')return xunesc(v[1]); if(t==='b')return v[1]==='1'; if(t==='e')return null;
+    return v[1]===''?null:+v[1];
+  }
+  // データのシート（フォームの回答・縦持ち）を書く
+  const N=resp.rows.length;
+  function writeData(sheetName,rows){
+    let x=files[path[sheetName]];
+    const sd=/<sheetData>([\s\S]*)<\/sheetData>/.exec(x);
+    const rowsXml=sd[1].match(/<row\b[\s\S]*?<\/row>/g);
+    const styles={};(rowsXml[1]||'').replace(/<c r="([A-Z]+)2"([^>]*?)\/?>/g,(m,c,a)=>{const s=/s="(\d+)"/.exec(a);if(s)styles[c]=s[1];return m;});
+    const body=rows.map((cells,i)=>{const r=i+2;return `<row r="${r}">`+cells.map((v,j)=>{const c=colName(j+1);const s=styles[c]?` s="${styles[c]}"`:'';if(v==null)return '';if(typeof v==='number')return `<c r="${c}${r}"${s}><v>${v}</v></c>`;return `<c r="${c}${r}"${s} t="inlineStr"><is><t>${xesc(v)}</t></is></c>`;}).join('')+'</row>';}).join('');
+    x=x.slice(0,sd.index)+'<sheetData>'+rowsXml[0]+body+'</sheetData>'+x.slice(sd.index+sd[0].length);
+    x=x.replace(/<dimension ref="[^"]*"\/>/,`<dimension ref="A1:${colName(rows[0].length)}${rows.length+1}"/>`);
+    files[path[sheetName]]=x;
+  }
+  const formRows=resp.rows.map((p,i)=>[i+1,p.grade,p.flag,...p.ys]);
+  const longRows=[];resp.rows.forEach((p,i)=>CO_LETTERS.forEach((L,k)=>longRows.push([i+1,p.grade,p.flag,L,...cond[L],p.ys[k]])));
+  writeData('フォームの回答 1',formRows);
+  writeData('分析用_縦持ち',longRows);
+  // 数式の計算
+  const sheets={};const formulaCells={};
+  for(const nm in path){
+    const m=new Map();formulaCells[nm]=[];
+    files[path[nm]].replace(cellRe,(all,c,r,attrs,inner)=>{
+      const f=inner&&/<f>([\s\S]*?)<\/f>/.exec(inner);
+      if(f){m.set(c+r,{f:xunesc(f[1])});formulaCells[nm].push(c+r);}
+      else m.set(c+r,{f:null,v:litVal(attrs,inner)});
+      return all;
+    });
+    sheets[nm]=m;
+  }
+  const eng=makeEngine(sheets);
+  const results={};
+  for(const nm in formulaCells){
+    const res={};for(const ref of formulaCells[nm]){res[ref]=eng.cellVal(nm,rowIndex(ref),colIndex(ref));}results[nm]=res;
+    files[path[nm]]=files[path[nm]].replace(/<c r="([A-Z]+\d+)"([^>]*?)>(<f>[\s\S]*?<\/f>)(?:<v>[\s\S]*?<\/v>|<v\/>)?<\/c>/g,(all,ref,attrs,f)=>{
+      if(!(ref in res))return all;const v=res[ref];attrs=attrs.replace(/\s*t="[^"]*"/,'');
+      if(v==null)return `<c r="${ref}"${attrs} t="str">${f}<v></v></c>`;
+      if(eng.isErr(v))return `<c r="${ref}"${attrs} t="e">${f}<v>${v.err}</v></c>`;
+      if(typeof v==='boolean')return `<c r="${ref}"${attrs} t="b">${f}<v>${v?1:0}</v></c>`;
+      if(typeof v==='number')return `<c r="${ref}"${attrs}>${f}<v>${v}</v></c>`;
+      return `<c r="${ref}"${attrs} t="str">${f}<v>${xesc(v)}</v></c>`;
+    });
+  }
+  // グラフの表示用データ（と、値が軸の範囲を超えるときの軸）
+  for(const n of names.filter(n=>/^xl\/charts\/chart\d+\.xml$/.test(n))){
+    let x=files[n];let lo=Infinity,hi=-Infinity;
+    x=x.replace(/<((?:\w+:)?)numRef>\s*<\1f>([^<]*)<\/\1f>\s*<\1numCache>([\s\S]*?)<\/\1numCache>/g,(all,px,f,cache)=>{
+      const m=/^'?(.*?)'?!\$?([A-Z]+)\$?(\d+)(?::\$?([A-Z]+)\$?(\d+))?$/.exec(xunesc(f));
+      const sh=m[1].replace(/''/g,"'");const c1=colIndex(m[2]),r1=+m[3],c2=colIndex(m[4]||m[2]),r2=+(m[5]||m[3]);
+      const vs=[];for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++)vs.push(eng.cellVal(sh,r,c));
+      const fcx=new RegExp('<'+px+'formatCode>[\\s\\S]*?</'+px+'formatCode>').exec(cache);
+      const pts=vs.map((v,i)=>{if(typeof v!=='number')return '';lo=Math.min(lo,v);hi=Math.max(hi,v);return `<${px}pt idx="${i}"><${px}v>${v}</${px}v></${px}pt>`;}).join('');
+      return `<${px}numRef><${px}f>${f}</${px}f><${px}numCache>${fcx?fcx[0]:''}<${px}ptCount val="${vs.length}"/>${pts}</${px}numCache>`;
+    });
+    x=x.replace(/<((?:\w+:)?)max val="([-\d.]+)"\/>/,(all,px,v)=>hi>+v?`<${px}max val="${Math.ceil(hi)}"/>`:all);
+    x=x.replace(/<((?:\w+:)?)min val="([-\d.]+)"\/>/,(all,px,v)=>lo<+v?`<${px}min val="${Math.floor(lo)}"/>`:all);
+    files[n]=x;
+  }
+  const order=names;
+  return {bytes:writeZip(order.map(n=>({name:n,data:files[n]}))),N,results};
+}
+
+/* --- 読み込んだファイルが「生データ」なら表にして返す（分析用Excelならnull） --- */
+async function rawTableFrom(buf,fileName){
+  const u8=new Uint8Array(buf);
+  const isZip=u8[0]===0x50&&u8[1]===0x4B;
+  if(!isZip)return parseCSV(decodeText(u8));
+  const zip=await openZip(buf);
+  if(zip.has('xl/workbook.xml')){
+    const wb=await readWorkbook(buf);
+    if(REQUIRED_SHEETS.every(n=>wb.names.includes(n)))return null; // 分析用Excel
+    const pick=wb.names.includes('フォームの回答 1')?['フォームの回答 1',...wb.names]:wb.names;
+    for(const nm of pick){const t=cellsToTable(await wb.cells(nm));if(t.some(r=>r&&r.some(v=>typeof v==='string'&&/企業\s*[A-LＡ-Ｌ]/.test(zen2han(v)))))return t;}
+    return cellsToTable(await wb.cells(pick[0]));
+  }
+  const csvName=zip.names().find(n=>/\.(csv|tsv|txt)$/i.test(n)&&!/^__MACOSX\//.test(n));
+  if(!csvName)throw new Error('NOT_XLSX');
+  return parseCSV(decodeText(await zip.bytes(csvName)));
+}
+
+const TEMPLATE_B64='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';
+
 /* ===== 読み込み ===== */
 const ERR={
-  NOT_XLSX:'このファイルはExcelファイル（.xlsx）として読めませんでした。Canvasから配られたファイルを選んでください。',
+  NOT_XLSX:'このファイルは読み込めませんでした。Canvasからダウンロードした回答データ（CSVなど）か、このページで保存した分析用のExcelを選んでください。',
+  RAW_EMPTY:'回答データの中に、回答が見つかりません。先生に知らせてください。',
   OLD_BROWSER:'このブラウザではファイルを読み込めません。Google Chrome、Microsoft Edge、または新しいSafariで、このページを開き直してください。',
   NO_DATA:'「分析用_縦持ち」シートに評価のデータが見つかりません。先生に知らせてください。',
   REGRESSION:'このデータでは回帰分析を計算できませんでした。先生に知らせてください。'
 };
 let loadFailed=false;
-const NEED_TEXT=()=>loadFailed?'読み込んだExcelでは始められません。「1 配られたExcelを読み込む」の説明に従って、ファイルを読み込み直してください。':'先に「1 配られたExcelを読み込む」で、ファイルを選んでください。';
+const NEED_TEXT=()=>loadFailed?'読み込んだファイルでは始められません。「1」の説明に従って、ファイルを読み込み直してください。':'先に「1」で、回答データのファイルを選んでください。';
 async function handleFile(file){
   if(!file)return;
-  loadFailed=true;
+  loadFailed=true;GEN=null;$('dlBox').hidden=true;
   const msg=$('loadMsg');
   msg.innerHTML='<p class="sub">読み込んでいます…</p>';
   try{
-    const wb=await readWorkbook(await file.arrayBuffer());
+    const buf=await file.arrayBuffer();
+    const u8=new Uint8Array(buf);
+    if(!(u8[0]===0x50&&u8[1]===0x4B)&&!/\.(csv|tsv|txt)$/i.test(file.name))throw new Error('NOT_XLSX');
+    let wbBuf=buf,gen=null;
+    const table=await rawTableFrom(buf,file.name);
+    if(table){const resp=extractResponses(table);const g=await buildWorkbook(resp);gen={bytes:g.bytes,N:g.N,bad:resp.bad};wbBuf=g.bytes.buffer;}
+    const wb=await readWorkbook(wbBuf);
     const miss=REQUIRED_SHEETS.filter(n=>!wb.names.includes(n));
     if(miss.length)throw Object.assign(new Error('SHEETS'),{miss});
     const d=analyse(file.name,await wb.cells('分析用_縦持ち'),null);
     d.xcheck=crossCheck(d,await wb.cells('3_回帰で条件をそろえる'));
     d.fcheck=formCheck(await wb.cells('フォームの回答 1'),d.recs);
+    if(gen&&d.xcheck.read<5)d.xcheck.bad.push({sheet:'3_回帰で条件をそろえる',cell:'B13:B17',excel:'（なし）',calc:f3(d.b[0])});
     const problems=[...d.fcheck.bad,...d.xcheck.bad.map(x=>`${x.sheet} ${x.cell} の計算結果（Excel：${x.excel}／計算し直した値：${x.calc}）`)];
     if(problems.length){
       DATA=null;
-      msg.innerHTML=`<div class="ng"><b>このExcelでは分析を始められません。</b><br>ファイルの中の回答データと計算結果が、たがいに一致していません。<ul style="margin:6px 0 6px 1.2em;padding:0">${problems.slice(0,3).map(t=>`<li>${esc(t)}</li>`).join('')}${problems.length>3?'<li>ほかにもあります</li>':''}</ul>Canvasからファイルをもう一度ダウンロードして、読み込み直してください。直らないときは、先生に知らせてください。</div>`;
+      msg.innerHTML=`<div class="ng"><b>このファイルでは分析を始められません。</b><br>ファイルの中の回答データと計算結果が、たがいに一致していません。<ul style="margin:6px 0 6px 1.2em;padding:0">${problems.slice(0,3).map(t=>`<li>${esc(t)}</li>`).join('')}${problems.length>3?'<li>ほかにもあります</li>':''}</ul>Canvasから回答データをもう一度ダウンロードして、読み込み直してください。直らないときは、先生に知らせてください。</div>`;
       renderPlan();return;
     }
-    DATA=d;loadFailed=false;
-    msg.innerHTML=`<div class="ok">✓ 読み込みました：<b class="f">${esc(file.name)}</b><div class="stats"><span>回答者 <strong>${d.N}</strong>人</span><span>評価 <strong>${d.M}</strong>件</span><span>架空企業 <strong>${d.K}</strong>社</span></div></div>`;
+    DATA=d;GEN=gen;loadFailed=false;
+    const stats=`<div class="stats"><span>回答者 <strong>${d.N}</strong>人</span><span>評価 <strong>${d.M}</strong>件</span><span>架空企業 <strong>${d.K}</strong>社</span></div>`;
+    msg.innerHTML=gen
+      ?`<div class="ok">✓ 回答データを読み込みました：<b class="f">${esc(file.name)}</b>${stats}</div>${gen.bad?`<div class="warnBox">1〜5以外の評価が${gen.bad}個あったため、その評価は空欄として扱いました。</div>`:''}`
+      :`<div class="ok">✓ 分析用のExcelを読み込みました：<b class="f">${esc(file.name)}</b>${stats}</div>`;
+    if(gen){$('dlBtn').textContent=`分析用のExcelをダウンロード（${d.N}人分）`;$('dlBox').hidden=false;}
     renderPlan();
   }catch(e){
     DATA=null;
     let text=ERR[e.message];
-    if(e.message==='SHEETS')text=`授業用のシート（${e.miss.slice(0,3).join('、')}${e.miss.length>3?' など':''}）が見つかりません。Canvasから配られた、40分版のExcelファイルを選んでください。`;
+    if(e.message==='SHEETS')text=`授業用のシート（${e.miss.slice(0,3).join('、')}${e.miss.length>3?' など':''}）が見つかりません。Canvasからダウンロードした回答データを選んでください。`;
     if(e.message==='COLUMNS')text=`「分析用_縦持ち」シートに必要な列（${e.missing.join('、')}）が見つかりません。先生に知らせてください。`;
-    if(!text)text='ファイルを読み込めませんでした。Canvasから配られたExcelファイルか確かめて、もう一度選んでください。';
+    if(e.message==='RAW_COLUMNS')text=`回答データの中に、企業A〜Lの評価の列が12列そろっていません（見つかった列：${e.found}列）。先生に知らせてください。`;
+    if(e.message==='RAW_TOO_MANY')text=`回答が${e.n}人分あります。このページで分析できるのは${MAX_PEOPLE}人までです。先生に知らせてください。`;
+    if(!text)text='ファイルを読み込めませんでした。Canvasからダウンロードした回答データか確かめて、もう一度選んでください。';
     msg.innerHTML=`<div class="ng">${esc(text)}</div>`;
     renderPlan();
   }
+}
+function downloadGen(){
+  if(!GEN)return;
+  const blob=new Blob([GEN.bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`コンジョイント分析_分析シート_${GEN.N}人.xlsx`;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  GEN.saved=true;renderPlan();
+  toast('保存しました。ダウンロードしたファイルをExcelで開いてください');
 }
 
 /* ===== 初期化 ===== */
 loadState();
 $('file').addEventListener('change',e=>handleFile(e.target.files[0]));
+$('dlBtn').addEventListener('click',downloadGen);
 const drop=$('drop');
 ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
 drop.addEventListener('drop',e=>handleFile(e.dataTransfer.files[0]));
 document.querySelectorAll('#osBtns button').forEach(b=>b.addEventListener('click',()=>{osChoice=b.dataset.os;saveState();renderOs();}));
 $('manualClose').addEventListener('click',()=>{$('manual').hidden=true;});
-$('copyMain').addEventListener('click',async()=>{if(!DATA)return;const ok=await copyText(buildPrompt('normal'));$('after').hidden=false;if(ok)toast('コピーしました。Geminiに貼り付けてください');});
+$('copyMain').addEventListener('click',async()=>{if(!DATA||(GEN&&!GEN.saved))return;const ok=await copyText(buildPrompt('normal'));$('after').hidden=false;if(ok)toast('コピーしました。Geminiに貼り付けてください');});
 document.querySelectorAll('#helpBox .helpBtns button').forEach(b=>b.addEventListener('click',()=>{helpMode=b.dataset.h;document.querySelectorAll('#helpBox .helpBtns button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('helpForm').hidden=false;$('resumeRow').hidden=helpMode!=='resume';$('helpLabel').textContent=helpMode==='fix'?'画面に何が出ていますか？（例：セルに「####」と表示される／シートが見つからない）':'どこまで進みましたか？（例：ステップ2のC23まで読んだ）';$('helpText').focus();}));
-$('helpCopy').addEventListener('click',async()=>{if(!DATA||!helpMode)return;const ok=await copyText(buildPrompt(helpMode,$('helpText').value.trim(),$('fromStep').value));if(ok)toast('コピーしました。Geminiに貼り付けてください');});
+$('helpCopy').addEventListener('click',async()=>{if(!DATA||!helpMode||(GEN&&!GEN.saved))return;const ok=await copyText(buildPrompt(helpMode,$('helpText').value.trim(),$('fromStep').value));if(ok)toast('コピーしました。Geminiに貼り付けてください');});
 renderOs();renderPlan();
 </script>
 </body>
